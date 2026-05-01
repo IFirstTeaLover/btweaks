@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "btweaks",
+	"version": "${version}",
+	"name": "btweaks",
+	"description": "Bulba's Tweaks!",
+	"authors": [
+		"BSprout"
+	],
+	"contact": {
+		"homepage": "https://github.com/ifirsttealover/btweaks",
+		"sources": "https://github.com/ifirsttealover/btweaks"
+	},
+	"license": "MIT",
+	"icon": "assets/btweaks/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"dev.bsprout.btweaks.client.BtweaksClient"
+		]
+	},
+	"mixins": [
+		"btweaks.mixins.json",
+		{
+			"config": "btweaks.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
