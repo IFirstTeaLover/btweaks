@@ -9,7 +9,8 @@ import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class Coordinates implements Widget {
     @Override
-    public void render(GuiGraphics ctx, int sw, int sh, int uiScale, float x, float y, DeltaTracker tick) {
+    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+        if (mc.getDebugOverlay().showDebugScreen()) return;
         String playerX = "§cX: §f" + Math.round(mc.player.getX());
         String playerY = "§aY: §f" + Math.round(mc.player.getY());
         String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
@@ -17,7 +18,7 @@ public class Coordinates implements Widget {
         int height = uiScale * 5;
         int padding = uiScale * 2;
 
-        float currentY = y + uiScale + height;
+        float currentY = y;
 
         // Draw X
         float rectWidthX = mc.font.width(playerX) + padding * 2;
@@ -37,5 +38,21 @@ public class Coordinates implements Widget {
         float rectWidthZ = mc.font.width(playerZ) + padding * 2;
         RoundRect.draw(ctx, x, currentY, rectWidthZ, height, 0x80262626);
         RoundRect.drawText(ctx, playerZ, x, currentY, rectWidthZ, height, 0xFFFFFFFF);
+    }
+
+    @Override
+    public float getWidth(int uiScale) {
+        if (mc.player == null) return 0;
+        String playerX = "§cX: §f" + Math.round(mc.player.getX());
+        String playerY = "§aY: §f" + Math.round(mc.player.getY());
+        String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
+        int padding = uiScale * 2;
+        float maxText = Math.max(mc.font.width(playerX), Math.max(mc.font.width(playerY), mc.font.width(playerZ)));
+        return maxText + padding * 2;
+    }
+
+    @Override
+    public float getHeight(int uiScale) {
+        return (uiScale * 5) * 3; // 3 rows
     }
 }

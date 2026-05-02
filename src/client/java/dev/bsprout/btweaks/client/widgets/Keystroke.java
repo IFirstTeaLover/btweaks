@@ -28,9 +28,10 @@ public class Keystroke implements Widget {
     }
 
     @Override
-    public void render(GuiGraphics ctx, int sw, int sh, int uiScale, float x, float y, DeltaTracker tick) {
+    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
+        int sw = mc.getWindow().getGuiScaledWidth();
 
         float pad  = uiScale;
         float size = sw / (90.0f / uiScale);
@@ -56,7 +57,7 @@ public class Keystroke implements Widget {
 
         int[] colors = new int[7];
         for (int i = 0; i < 7; i++) {
-            blend[i] += ((pressed[i] ? 1f : 0f) - blend[i]) * LERPSPEED;
+            blend[i] += ((pressed[i] ? 1f : 0f) - blend[i]) * LERPSPEED * tick.getGameTimeDeltaTicks() / 16;
             colors[i] = lerpColor(0x80262626, 0x80D9D9D9, blend[i]);
         }
 
@@ -65,7 +66,7 @@ public class Keystroke implements Widget {
         var keyLeft  = mc.options.keyLeft;
         var keyRight = mc.options.keyRight;
 
-        float cpsH  = size * 0.75f;
+        float cpsH  = size * 1.25f;
         float cpsW  = size * 1.5f + pad * 0.5f;
 
         // y is the bottom of the widget, render upward
@@ -81,7 +82,7 @@ public class Keystroke implements Widget {
         float lineW = (x + size * 3 + pad * 2 - spaceMargin) - lineX;
 
         // W
-        RoundRect.draw(ctx, x + size - pad, wKeyY, size, size, colors[0]);
+        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0]);
         // A S D
         RoundRect.draw(ctx, x,              wasdY, size, size, colors[2]);
         RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1]);
@@ -103,5 +104,24 @@ public class Keystroke implements Widget {
         RoundRect.drawText(ctx, lmbCps + " cps",  x,              cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, 0xFFFFFFFF);
         RoundRect.drawText(ctx, "RMB",            x + cpsW + pad, cpsY,              cpsW, cpsH * 0.5f, 0xFFFFFFFF);
         RoundRect.drawText(ctx, rmbCps + " cps",  x + cpsW + pad, cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, 0xFFFFFFFF);
+    }
+
+    @Override
+    public float getWidth(int uiScale) {
+        Minecraft mc = Minecraft.getInstance();
+        int sw = mc.getWindow().getGuiScaledWidth();
+        float pad = uiScale;
+        float size = sw / (90.0f / uiScale);
+        return size * 3 + pad * 2;
+    }
+
+    @Override
+    public float getHeight(int uiScale) {
+        Minecraft mc = Minecraft.getInstance();
+        int sw = mc.getWindow().getGuiScaledWidth();
+        float pad = uiScale;
+        float size = sw / (90.0f / uiScale);
+        float cpsH = size * 0.75f;
+        return size * 3 + size / 2 + cpsH + pad * 4; // W + ASD + space + CPS + gaps
     }
 }

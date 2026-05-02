@@ -2,13 +2,11 @@ package dev.bsprout.btweaks.client;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import org.joml.Matrix4f;
 
 public class RoundRect {
     public static void draw(GuiGraphics graphics, float x, float y, float width, float height, int color) {
         graphics.fill((int)x, (int)y, (int)(x + width), (int)(y + height), color);
-    }
+    } // TODO: KMS
 
     public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor) {
         var font = net.minecraft.client.Minecraft.getInstance().font;
