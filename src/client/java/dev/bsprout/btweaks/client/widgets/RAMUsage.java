@@ -33,16 +33,17 @@ public class RAMUsage implements Widget{
 
         // Draw 1
         float rectWidthX = mc.font.width(line1) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626);
+        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626, 3);
         RoundRect.drawText(ctx, line1, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
-        currentY += height;
+        currentY += height + uiScale;
 
         // Draw 2
         float rectWidthY = mc.font.width(line2) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626);
+        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626, 3);
         RoundRect.drawText(ctx, line2, x, currentY, rectWidthY, height, 0xFFFFFFFF);
     }
+
 
     @Override
     public float getWidth(int uiScale) {

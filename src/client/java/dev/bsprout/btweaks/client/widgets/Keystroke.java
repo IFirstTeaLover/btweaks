@@ -55,9 +55,12 @@ public class Keystroke implements Widget {
                 KeyLogger.isUsePressed
         };
 
+        float deltaTimeCapped = tick.getGameTimeDeltaTicks();
+        if (deltaTimeCapped > 1) deltaTimeCapped = 1; // cap at 1 so that lerp doesn't overshoot to yellow
+
         int[] colors = new int[7];
         for (int i = 0; i < 7; i++) {
-            blend[i] += ((pressed[i] ? 1f : 0f) - blend[i]) * LERPSPEED * tick.getGameTimeDeltaTicks() / 16;
+            blend[i] += ((pressed[i] ? 1f : 0f) - blend[i]) * LERPSPEED * deltaTimeCapped;
             colors[i] = lerpColor(0x80262626, 0x80D9D9D9, blend[i]);
         }
 
@@ -81,18 +84,20 @@ public class Keystroke implements Widget {
         float lineX = x + spaceMargin;
         float lineW = (x + size * 3 + pad * 2 - spaceMargin) - lineX;
 
+        int strokeSize = (int) (uiScale * 1.6);
+
         // W
-        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0]);
+        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0], strokeSize);
         // A S D
-        RoundRect.draw(ctx, x,              wasdY, size, size, colors[2]);
-        RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1]);
-        RoundRect.draw(ctx, x + size*2+pad*2, wasdY, size, size, colors[3]);
+        RoundRect.draw(ctx, x,              wasdY, size, size, colors[2], strokeSize);
+        RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1], strokeSize);
+        RoundRect.draw(ctx, x + size*2+pad*2, wasdY, size, size, colors[3], strokeSize);
         // Space
-        RoundRect.draw(ctx, x, spaceY, size * 3 + pad * 2, size / 2, colors[4]);
+        RoundRect.draw(ctx, x, spaceY, size * 3 + pad * 2, size / 2, colors[4], strokeSize);
         RoundRect.draw(ctx, lineX, lineY, lineW, lineH, 0xFFFFFFFF);
         // CPS
-        RoundRect.draw(ctx, x,              cpsY, cpsW, cpsH, colors[5]);
-        RoundRect.draw(ctx, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6]);
+        RoundRect.draw(ctx, x,              cpsY, cpsW, cpsH, colors[5], strokeSize);
+        RoundRect.draw(ctx, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6], strokeSize);
 
         // Labels
         RoundRect.drawText(ctx, keyUp.getTranslatedKeyMessage().getString(),    x + size + pad,   wKeyY, size, size, 0xFFFFFFFF);

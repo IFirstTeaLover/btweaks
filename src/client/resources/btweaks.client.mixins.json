@@ -3,7 +3,7 @@
 	"package": "dev.bsprout.btweaks.client.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-
+      "LoadingOverlayMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

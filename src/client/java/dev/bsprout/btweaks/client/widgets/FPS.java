@@ -4,6 +4,7 @@ import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.Identifier;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
@@ -17,7 +18,7 @@ public class FPS implements Widget {
         int padding = uiScale * 2;
         int textWidth = mc.font.width(text);
         float rectWidth = textWidth + padding * 2;
-        RoundRect.draw(ctx, x, y, rectWidth, height, 0x80262626);
+        RoundRect.draw(ctx, x, y, rectWidth, height, 0x80262626, uiScale);
         RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
     }
 

@@ -8,9 +8,10 @@ import net.minecraft.client.DeltaTracker;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+
 public class WidgetRenderer implements HudRenderCallback {
 
-    private static final float GAP = 4;
     private final List<WidgetInstance> widgets = new ArrayList<>();
 
     public void add(Widget widget, int col, int row, WidgetInstance.Anchor anchor) {
@@ -19,7 +20,7 @@ public class WidgetRenderer implements HudRenderCallback {
 
     @Override
     public void onHudRender(GuiGraphics ctx, DeltaTracker tick) {
-        Minecraft mc = Minecraft.getInstance();
+        final float GAP = mc.getWindow().getGuiScale();
         if (mc.player == null || mc.options.hideGui) return;
 
         int sw = mc.getWindow().getGuiScaledWidth();

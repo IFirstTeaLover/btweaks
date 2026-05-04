@@ -22,21 +22,21 @@ public class Coordinates implements Widget {
 
         // Draw X
         float rectWidthX = mc.font.width(playerX) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626);
+        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626, uiScale);
         RoundRect.drawText(ctx, playerX, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
-        currentY += height;
+        currentY += height + uiScale;
 
         // Draw Y
         float rectWidthY = mc.font.width(playerY) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626);
+        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626, uiScale);
         RoundRect.drawText(ctx, playerY, x, currentY, rectWidthY, height, 0xFFFFFFFF);
 
-        currentY += height;
+        currentY += height + uiScale;
 
         // Draw Z
         float rectWidthZ = mc.font.width(playerZ) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthZ, height, 0x80262626);
+        RoundRect.draw(ctx, x, currentY, rectWidthZ, height, 0x80262626, uiScale);
         RoundRect.drawText(ctx, playerZ, x, currentY, rectWidthZ, height, 0xFFFFFFFF);
     }
 

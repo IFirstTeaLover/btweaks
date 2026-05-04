@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.lwjgl.glfw.GLFW;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.openConfigKey;
-import static dev.bsprout.btweaks.client.config.ConfigWindow.targetScale;
 
 public class KeyLogger {
     public static boolean isForwardPressed = false;

@@ -23,9 +23,14 @@ public class BtweaksClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        LOGGER.info("btweaks initializing!");
         KeyLogger.register();
+        WorldCallback.register();
 
+        LOGGER.info("btweaks initializing widget renderer!");
         WidgetRenderer renderer = new WidgetRenderer();
+
+        LOGGER.info("btweaks initializing widgets!");
         renderer.add(new Keystroke(), 4, 4, WidgetInstance.Anchor.BOTTOM_RIGHT);
         renderer.add(new FPS(), -1, -1, WidgetInstance.Anchor.TOP_LEFT);
         renderer.add(new Coordinates(), -1, -1, WidgetInstance.Anchor.TOP_LEFT);
@@ -34,5 +39,7 @@ public class BtweaksClient implements ClientModInitializer {
 
         HudRenderCallback.EVENT.register(renderer);
         HudRenderCallback.EVENT.register(new ConfigWindow());
+
+        LOGGER.info("btweaks initialized successfully!");
     }
 }
