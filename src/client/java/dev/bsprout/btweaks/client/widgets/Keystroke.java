@@ -129,4 +129,29 @@ public class Keystroke implements Widget {
         float cpsH = size * 0.75f;
         return size * 3 + size / 2 + cpsH + pad * 4; // W + ASD + space + CPS + gaps
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(boolean state) {
+
+    }
+
+    @Override
+    public String getName() {
+        return "Keystrokes";
+    }
+
+    @Override
+    public void setX(int x) {
+
+    }
+
+    @Override
+    public void setY(int y) {
+
+    }
 }

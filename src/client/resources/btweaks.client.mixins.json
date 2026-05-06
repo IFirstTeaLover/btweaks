@@ -1,14 +1,19 @@
 {
-	"required": true,
-	"package": "dev.bsprout.btweaks.client.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"client": [
-      "LoadingOverlayMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
+  "required": true,
+  "package": "dev.bsprout.btweaks.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "FontManagerAccessor",
+    "LoadingOverlayMixin",
+    "MinecraftAccessor",
+    "ScreenMixin",
+    "ScreenshotMixin",
+    "TitleScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
 	}
 }

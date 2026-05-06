@@ -1,16 +1,25 @@
 package dev.bsprout.btweaks.client;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.*;
+import dev.bsprout.btweaks.client.mixin.MinecraftAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
-public class RoundRect {
+import java.util.Objects;
 
+import static dev.bsprout.btweaks.client.BtweaksClient.LOGGER;
+
+public class RoundRect {
+    public static FontDescription inter = new FontDescription.Resource(Identifier.fromNamespaceAndPath("btweaks", "inter"));
+    public static FontDescription gsans = new FontDescription.Resource(Identifier.fromNamespaceAndPath("btweaks", "gsans"));
     public static Identifier roundTexture = Identifier.fromNamespaceAndPath("btweaks", "textures/gui/rounded_corners.png");
 //    public static final VertexFormatElement RECT_SIZE = VertexFormatElement.register(
 //            7, 3, VertexFormatElement.Type.FLOAT, VertexFormatElement.Usage.UV, 2
@@ -133,11 +142,29 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
         draw(graphics, x, y, width, height, argb, cornerSize, cornerSize, cornerSize, cornerSize);
     }
 
-    public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor) {
+    public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor, String fontType) {
         var font = Minecraft.getInstance().font;
-        int textWidth = font.width(text);
-        int centerX = (int)(x + (width / 2) - (textWidth / 2));
-        int centerY = (int)(y + (height / 2) - (font.lineHeight / 2));
-        graphics.drawString(font, text, centerX, centerY, textColor, false);
+        FontDescription fontId = switch (fontType) {
+            case "gsans" -> gsans;
+            case "inter" -> inter;
+            default -> null;
+        };
+        MutableComponent component = Component.literal(text);
+
+        if (fontId != null) {
+            component = component.withStyle(s -> s.withFont(fontId));
+        } else if (!fontType.equals("default")) {
+            LOGGER.warn("btweaks: unknown font! Falling back to inter.");
+            component = component.withStyle(s -> s.withFont(inter));
+        }
+
+        int textWidth = font.width(component);
+
+        int centerX = (int)(x + (width / 2) - ((float) textWidth / 2f));
+        int centerY = (int)(y + (height / 2) - ((float) font.lineHeight / 2f));
+        graphics.drawString(font, component, centerX, centerY, textColor, false);
+    }
+    public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor) {
+        drawText(graphics, text, x, y, width, height, textColor, "default");
     }
 }

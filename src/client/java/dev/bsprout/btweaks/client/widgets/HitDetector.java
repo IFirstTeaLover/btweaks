@@ -65,4 +65,29 @@ public class HitDetector implements Widget {
     public float getHeight(int uiScale) {
         return uiScale * 5;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(boolean state) {
+
+    }
+
+    @Override
+    public String getName() {
+        return "Hit detector";
+    }
+
+    @Override
+    public void setX(int x) {
+
+    }
+
+    @Override
+    public void setY(int y) {
+
+    }
 }

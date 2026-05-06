@@ -90,4 +90,8 @@ public class WidgetRenderer implements HudRenderCallback {
             }
         }
     }
+
+    public List<WidgetInstance> getWidgets() {
+        return widgets;
+    }
 }

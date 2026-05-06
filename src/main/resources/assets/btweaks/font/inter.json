@@ -1,0 +1,10 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "btweaks:inter18ptblack.ttf",
+      "size": 10,
+      "oversample": 60
+    }
+  ]
+}

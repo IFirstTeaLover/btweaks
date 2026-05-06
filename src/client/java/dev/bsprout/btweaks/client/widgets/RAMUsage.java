@@ -60,4 +60,29 @@ public class RAMUsage implements Widget{
     public float getHeight(int uiScale) {
         return (uiScale * 5) * 2; // 2 rows
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(boolean state) {
+
+    }
+
+    @Override
+    public String getName() {
+        return "RAM Usage";
+    }
+
+    @Override
+    public void setX(int x) {
+
+    }
+
+    @Override
+    public void setY(int y) {
+
+    }
 }

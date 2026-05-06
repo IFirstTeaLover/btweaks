@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class BtweaksClient implements ClientModInitializer {
     public static final Minecraft mc = Minecraft.getInstance();
+    public static WidgetRenderer renderer;
     public static final Logger LOGGER = LoggerFactory.getLogger("btweaks");
     public static final KeyMapping openConfigKey = new KeyMapping(
             "key.btweaks.open_config",
@@ -27,8 +28,9 @@ public class BtweaksClient implements ClientModInitializer {
         KeyLogger.register();
         WorldCallback.register();
 
+
         LOGGER.info("btweaks initializing widget renderer!");
-        WidgetRenderer renderer = new WidgetRenderer();
+        renderer = new WidgetRenderer();
 
         LOGGER.info("btweaks initializing widgets!");
         renderer.add(new Keystroke(), 4, 4, WidgetInstance.Anchor.BOTTOM_RIGHT);
@@ -38,7 +40,6 @@ public class BtweaksClient implements ClientModInitializer {
         renderer.add(new HitDetector(), 0, 30, WidgetInstance.Anchor.CENTER);
 
         HudRenderCallback.EVENT.register(renderer);
-        HudRenderCallback.EVENT.register(new ConfigWindow());
 
         LOGGER.info("btweaks initialized successfully!");
     }

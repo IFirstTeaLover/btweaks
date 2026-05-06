@@ -1,0 +1,10 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "btweaks:google_sans.ttf",
+      "size": 10,
+      "oversample": 60
+    }
+  ]
+}

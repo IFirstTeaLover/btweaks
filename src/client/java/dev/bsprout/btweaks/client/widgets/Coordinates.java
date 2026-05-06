@@ -55,4 +55,29 @@ public class Coordinates implements Widget {
     public float getHeight(int uiScale) {
         return (uiScale * 5) * 3; // 3 rows
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(boolean state) {
+
+    }
+
+    @Override
+    public String getName() {
+        return "Coordinates";
+    }
+
+    @Override
+    public void setX(int x) {
+
+    }
+
+    @Override
+    public void setY(int y) {
+
+    }
 }
