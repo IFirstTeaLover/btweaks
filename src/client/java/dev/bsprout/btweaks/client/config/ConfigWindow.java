@@ -39,9 +39,9 @@ public class ConfigWindow extends Screen {
                     Component.literal(inst.widget.getName()),
                     0, 0, 0, 0,
                     () -> {
-                        this.menuButtons.clear();
+                        this.menuButtons.forEach(this::removeWidget);
 
-                        this.clearWidgets();
+                        this.menuButtons.clear();
 
                         inst.widget.setEnabled(!inst.widget.isEnabled());
                         this.showWidgetConfig(inst.widget.getName());
