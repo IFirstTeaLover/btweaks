@@ -10,10 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.LOGGER;
+import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import static dev.bsprout.btweaks.client.RoundRect.drawText;
+import static dev.bsprout.btweaks.client.config.ConfigManager.save;
 import static dev.bsprout.btweaks.client.config.widgets.CoordinatesConfig.showCoordinatesConfig;
 import static dev.bsprout.btweaks.client.config.widgets.FPSConfig.showFpsDisplayConfig;
+import static dev.bsprout.btweaks.client.config.widgets.GPUUtilizationConfig.showGPUUtilizationConfig;
 import static dev.bsprout.btweaks.client.config.widgets.HitDetectorConfig.showHitDetectorConfig;
 import static dev.bsprout.btweaks.client.config.widgets.KeystrokeConfig.showKeystrokeConfig;
+import static dev.bsprout.btweaks.client.config.widgets.PingConfig.showPingConfig;
 import static dev.bsprout.btweaks.client.config.widgets.RAMUsageConfig.showRAMUsageConfig;
 
 public class ConfigWindow extends Screen {
@@ -21,9 +26,17 @@ public class ConfigWindow extends Screen {
     private float animationProgress = 0f;
     private static final float sidebarSize = 0.25f;
     private final List<RoundButton> menuButtons = new ArrayList<>();
+
+    private final List<RoundButton> checkmarks = new ArrayList<>();
+
     private float scrollAmount = 0;
     private float maxScroll = 0;
     private float targetScroll = 0;
+    float configScale = 0;
+
+    private final java.util.Map<RoundButton, CheckmarkData> checkmarkMetadata = new java.util.HashMap<>();
+
+    private record CheckmarkData(String title, String desc, WidgetInstance inst) {}
 
     public ConfigWindow() {
         super(Component.literal("BTweaks Config"));
@@ -33,6 +46,8 @@ public class ConfigWindow extends Screen {
     protected void init() {
         this.menuButtons.clear();
         this.clearWidgets();
+        this.checkmarks.clear();
+        this.checkmarkMetadata.clear();
 
         for (WidgetInstance inst : BtweaksClient.renderer.getWidgets()) {
             RoundButton btn = new RoundButton(0, 0, 0, 0,
@@ -43,45 +58,36 @@ public class ConfigWindow extends Screen {
 
                         this.menuButtons.clear();
 
-                        inst.widget.setEnabled(!inst.widget.isEnabled());
                         this.showWidgetConfig(inst.widget.getName());
                     },
-                    0xFF333333
+                    0xFF333333, false
             );
             this.menuButtons.add(btn);
             this.addRenderableWidget(btn);
         }
 
-        widgetsButton = new RoundButton(0, 0, 0, 0, Component.literal("Widgets"), 0, 0, 0, 0, () -> {
-            LOGGER.info("Widgets tab clicked!");
-        }, 0xFF196EE8);
+        widgetsButton = new RoundButton(0, 0, 0, 0, Component.literal("Widgets"), 0, 0, 0, 0, this::init, 0xFF196EE8, false);
         this.addRenderableWidget(widgetsButton);
     }
 
     @Override
     public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
-        float animationSpeed = 4.0f;
-        if (Math.abs(scrollAmount - targetScroll) > 0.1f) {
-            scrollAmount += (targetScroll - scrollAmount) * 0.2f;
-        } else {
-            scrollAmount = targetScroll;
-        }
-        animationProgress = Math.min(1.0f, animationProgress + (delta / 20f) * animationSpeed);
+        animationProgress = updateAnimations(delta);
 
-        float configScale = (float) Math.sin((animationProgress * Math.PI) / 2);
+        configScale = (float) Math.sin((animationProgress * Math.PI) / 2);
 
         int uiScale = this.minecraft.getWindow().getGuiScale();
 
         float configWidth = this.width * 0.6f;
         float configHeight = configWidth * 0.62f;
 
-        float currentW = configWidth * configScale;
-        float currentH = configHeight * configScale;
+        float currentW = configScaled(configWidth);
+        float currentH = configScaled(configHeight);
 
         float x = (this.width - currentW) / 2f;
         float y = (this.height - currentH) / 2f;
 
-        float margin = (uiScale * 2) * configScale;
+        float margin = configScaled((uiScale * 2));
 
         float sidebarWidth = currentW * sidebarSize;
 
@@ -90,41 +96,43 @@ public class ConfigWindow extends Screen {
 
         float mainContentX = x + sidebarWidth;
 
-        ctx.enableScissor(
-                (int) x,
-                (int) y,
-                (int) (x + currentW),
-                (int) (y +currentH - 1)
-        );
-
-
-        widgetsButton.setX((int) (x + margin));
-        widgetsButton.setY((int) (y + margin));
-        widgetsButton.setWidth((int) (sidebarWidth - margin * 2));
-        widgetsButton.setHeight(widgetsButton.getWidth() / 5);
-        widgetsButton.setRadius((int) ((uiScale * 2.5) * configScale), (int) ((uiScale * 1.5) * configScale), (int) ((uiScale * 1.5) * configScale), (int) ((uiScale * 1.5) * configScale));
-
-        int buttonWidth = (int) (mainAreaW - (margin * 2));
-        int buttonHeight = (int) (buttonWidth / 10f);
-        int i = 0;
-        for (var widget : this.menuButtons) {
-            if (widget instanceof RoundButton btn) {
-                int rounding = (int)(uiScale * 2 * configScale);
-                btn.setWidth((buttonWidth));
-                btn.setHeight(buttonHeight);
-                btn.setX((int)(mainContentX + margin));
-                btn.setY((int)(y + margin + (i * (buttonHeight + margin)) - scrollAmount));
-                btn.setRadius(rounding, rounding, rounding, rounding);
-                i++;
-            }
-        }
-
-        RoundRect.draw(ctx, x, y, currentW, currentH, 0xF2202020, (int) (uiScale * 4 * configScale));
+        RoundRect.draw(ctx, x, y, currentW, currentH, 0xF2202020, (int) configScaled((uiScale * 2.5)));
 
         RoundRect.draw(ctx, x, y, sidebarWidth, currentH, 0xF21A1A1A,
-                (int) (uiScale * 4 * configScale), 0, (int) (uiScale * 4 * configScale), 0);
+                (int) (configScaled(uiScale * 4)), 0, (int) (configScaled(uiScale * 2.5)), 0);
 
-        this.maxScroll = Math.max(0, (i * buttonHeight) - currentH + (margin * 2));
+        // prevent scrollable buttons from showing outside config window
+        ctx.enableScissor(
+                (int) x + 3,
+                (int) y + 3,
+                (int) (x + currentW - 3),
+                (int) (y + currentH - 3)
+        );
+
+        updateConfigButtonsLayout(
+                x,
+                y,
+                margin,
+                sidebarWidth,
+                mainAreaW,
+                mainContentX,
+                currentH,
+                uiScale
+        );
+
+        for (RoundButton boxBtn : this.checkmarks) {
+            int cardWidth = (int) (mainAreaW - (margin * 2));
+            int cardHeight = (int) (cardWidth / 10f);
+            int cardX = (int) (mainContentX + margin);
+
+            int cardY = boxBtn.getY() - (cardHeight / 2) + (boxBtn.getHeight() / 2);
+
+            CheckmarkData data = checkmarkMetadata.get(boxBtn);
+
+            drawSettingCard(ctx, cardX, cardY, cardWidth, cardHeight,
+                    data.title, data.desc,
+                    data.inst.widget.isEnabled(), uiScale);
+        }
 
         super.render(ctx, mouseX, mouseY, delta);
 
@@ -146,12 +154,13 @@ public class ConfigWindow extends Screen {
     public boolean keyPressed(KeyEvent keyEvent) {
         // key code 344 is right shift
         if (keyEvent.key() == 344) {
+            save();
             this.onClose();
             return true;
         }
 
-
         if (keyEvent.isEscape() && this.shouldCloseOnEsc()) {
+            save();
             this.onClose();
             return true;
         }
@@ -166,18 +175,178 @@ public class ConfigWindow extends Screen {
         }
     }
 
-    private void showWidgetConfig(String config){
-        switch (config) {
-            case "Coordinates":
-                showCoordinatesConfig();
-            case "Framerate display":
-                showFpsDisplayConfig();
-            case "Hit detector":
-                showHitDetectorConfig();
-            case "Keystroke":
-                showKeystrokeConfig();
-            case "RAM Usage":
-                showRAMUsageConfig();
+    private void showWidgetConfig(String configName) {
+
+        WidgetInstance inst = null;
+        for (WidgetInstance w : BtweaksClient.renderer.getWidgets()) {
+            if (w.widget.getName().equals(configName)) {
+                inst = w;
+                break;
+            }
         }
+
+        if (inst == null) return;
+
+        switch (configName) {
+            case "Coordinates":
+                showCoordinatesConfig(this, inst);
+                break;
+            case "Framerate display":
+                showFpsDisplayConfig(this, inst);
+                break;
+            case "Hit detector":
+                showHitDetectorConfig(this, inst);
+                break;
+            case "Keystrokes":
+                showKeystrokeConfig(this, inst);
+                break;
+            case "RAM Usage":
+                showRAMUsageConfig(this, inst);
+                break;
+            case "GPU Utilization display":
+                showGPUUtilizationConfig(this, inst);
+                break;
+            case "Ping display":
+                showPingConfig(this, inst);
+                break;
+        }
+    }
+
+    private float updateAnimations(float delta){
+        float animationSpeed = 4.0f;
+        if (Math.abs(scrollAmount - targetScroll) > 0.1f) {
+            scrollAmount += (targetScroll - scrollAmount) * 0.2f;
+        } else {
+            scrollAmount = targetScroll;
+        }
+        return Math.min(1.0f, animationProgress + (delta / 20f) * animationSpeed);
+    }
+
+    private float configScaled(int var){
+        return var * configScale;
+    }
+
+    private float configScaled(float var){
+        return var * configScale;
+    }
+
+    private float configScaled(double var){
+        return (float) (var * configScale);
+    }
+
+    private void updateConfigButtonsLayout(
+            float x,
+            float y,
+            float margin,
+            float sidebarWidth,
+            float mainAreaW,
+            float mainContentX,
+            float currentH,
+            int uiScale
+    ) {
+        widgetsButton.setX((int) (x + margin));
+        widgetsButton.setY((int) (y + margin));
+        widgetsButton.setWidth((int) (sidebarWidth - margin * 2));
+        widgetsButton.setHeight(widgetsButton.getWidth() / 5);
+
+        int buttonRounding = (int) configScaled(uiScale);
+
+        widgetsButton.setRadius(
+                buttonRounding,
+                buttonRounding,
+                buttonRounding,
+                buttonRounding
+        );
+
+        int buttonWidth = (int) (mainAreaW - (margin * 2));
+
+        int buttonHeight = (int) (buttonWidth / 10f);
+
+        int i = 0;
+
+        for (RoundButton btn : this.menuButtons) {
+            int rounding = (int) configScaled(uiScale * 1.6f);
+
+            btn.setWidth(buttonWidth);
+            btn.setHeight(buttonHeight);
+
+            btn.setX((int) (mainContentX + margin));
+
+            btn.setY((int) (
+                    y + margin +
+                            (i * (buttonHeight + margin)) -
+                            scrollAmount
+            ));
+
+            btn.setRadius(rounding, rounding, rounding, rounding);
+
+            i++;
+        }
+        int cardWidth = 0;
+        int j = 0;
+        cardWidth = (int) (mainAreaW - (margin * 2));
+        int cardHeight = (int) (cardWidth / 10f);
+
+        for (RoundButton boxBtn : this.checkmarks) {
+            int cardX = (int) (mainContentX + margin);
+            int cardY = (int) (y + margin + (j * (cardHeight + margin)) - scrollAmount);
+
+            int boxSize = (int) (cardHeight * 0.75f);
+            int padding = uiScale * 3;
+
+            int verticalPadding = (cardHeight - boxSize) / 2;
+            int horizontalPadding = verticalPadding;
+
+            boxBtn.setWidth(boxSize);
+            boxBtn.setHeight(boxSize);
+            boxBtn.setX(cardX + cardWidth - boxSize - horizontalPadding);
+            boxBtn.setY(cardY + verticalPadding);
+            int boxRadius = (int)configScaled(uiScale * 1.2f);
+            boxBtn.setRadius(boxRadius, boxRadius, boxRadius, boxRadius);
+            j++;
+        }
+
+        float checkmarkHeight = (j * (cardHeight + margin));
+        float menuHeight = (i * (buttonHeight + margin));
+        this.maxScroll = Math.max(0, Math.max(menuHeight, checkmarkHeight) - currentH + (margin * 2));
+    }
+
+    public void newCheckmark(WidgetInstance inst, String title, String desc) {
+        boolean isEnabled = inst.widget.isEnabled();
+        final RoundButton[] checkBoxArr = new RoundButton[1];
+        inst.widget.setEnabled(isEnabled);
+        checkBoxArr[0] = new RoundButton(0, 0, 0, 0,
+                Component.literal(inst.widget.isEnabled() ? "✔" : "✖"),
+                0, 0, 0, 0,
+                () -> {
+                    boolean newState = !inst.widget.isEnabled();
+                    inst.widget.setEnabled(newState);
+
+                    if (checkBoxArr[0] != null) {
+                        checkBoxArr[0].setColor(newState ? 0xFF4CAF50 : 0xFF333333);
+                        checkBoxArr[0].setMessage(Component.literal(newState ? "✔" : "✖"));
+                    }
+
+                    ConfigManager.set(inst.widget.getName(), newState);
+                },
+                inst.widget.isEnabled() ? 0xFF4CAF50 : 0xFF333333, true
+        );
+
+        checkmarkMetadata.put(checkBoxArr[0], new CheckmarkData(title, desc, inst));
+
+        this.checkmarks.add(checkBoxArr[0]);
+        this.addRenderableWidget(checkBoxArr[0]);
+    }
+
+    public static void drawSettingCard(GuiGraphics graphics, int x, int y, int width, int height, String title, String desc, boolean enabled, int uiScale) {
+        int padding = uiScale * 3;
+        int gap = uiScale * 2;
+
+        RoundRect.draw(graphics, x, y, width, height, 0x901A1A1A, (int) (uiScale * 1.2));
+
+        drawText(graphics, title, x + padding, y + padding, 0, 0, 0xFFFFFFFF, "gsans", "left");
+
+        int descY = y + height - padding;
+        drawText(graphics, desc, x + padding, descY, 0, 0, 0xFFAAAAAA, "gsans", "left");
     }
 }

@@ -3,6 +3,7 @@ package dev.bsprout.btweaks.client.widgets;
 import dev.bsprout.btweaks.client.KeyLogger;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
+import dev.bsprout.btweaks.client.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.DeltaTracker;
@@ -10,7 +11,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class Keystroke implements Widget {
-
+    private boolean isEnabled;
     private float[] blend = {0, 0, 0, 0, 0, 0, 0};
     private static final float LERPSPEED = 0.3f;
 
@@ -29,6 +30,7 @@ public class Keystroke implements Widget {
 
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+        if (!isEnabled) return;
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
         int sw = mc.getWindow().getGuiScaledWidth();
@@ -113,6 +115,7 @@ public class Keystroke implements Widget {
 
     @Override
     public float getWidth(int uiScale) {
+        if (!isEnabled) return 0;
         Minecraft mc = Minecraft.getInstance();
         int sw = mc.getWindow().getGuiScaledWidth();
         float pad = uiScale;
@@ -122,6 +125,7 @@ public class Keystroke implements Widget {
 
     @Override
     public float getHeight(int uiScale) {
+        if (!isEnabled) return 0;
         Minecraft mc = Minecraft.getInstance();
         int sw = mc.getWindow().getGuiScaledWidth();
         float pad = uiScale;
@@ -132,12 +136,15 @@ public class Keystroke implements Widget {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        boolean enabled = ConfigManager.getBoolean(this.getName(), true);
+        isEnabled = enabled;
+        return enabled;
     }
 
     @Override
-    public void setEnabled(boolean state) {
-
+    public void setEnabled(boolean enabled) {
+        ConfigManager.set(this.getName(), enabled);
+        isEnabled = enabled;
     }
 
     @Override

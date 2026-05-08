@@ -16,10 +16,12 @@ public class RoundButton extends AbstractButton {
     private int radius3;
     private int radius4;
     private int color;
+    private boolean emoji;
+    private int textColor = 0xFFFFFFFF;
     private final Runnable onClick;
     private float hoverProgress;
 
-    public RoundButton(int x, int y, int width, int height, Component message, int radius1, int radius2, int radius3, int radius4, Runnable onClick, int color) {
+    public RoundButton(int x, int y, int width, int height, Component message, int radius1, int radius2, int radius3, int radius4, Runnable onClick, int color, boolean emoji) {
         super(x, y, width, height, message);
         this.onClick = onClick;
         this.radius1 = radius1;
@@ -27,6 +29,7 @@ public class RoundButton extends AbstractButton {
         this.radius3 = radius3;
         this.radius4 = radius4;
         this.color = color;
+        this.emoji = emoji;
     }
 
     public void setRadius(int radius1, int radius2, int radius3, int radius4) {
@@ -51,6 +54,8 @@ public class RoundButton extends AbstractButton {
             this.onClick.run();
         }
     }
+
+    public void setTextColor(int color){this.textColor = color;}
 
     @Override
     protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -78,9 +83,10 @@ public class RoundButton extends AbstractButton {
 
         int color = (255 << 24) | (r << 16) | (g << 8) | b;
 
-        RoundRect.draw(guiGraphics, getX(), getY(), getWidth(), getHeight(), color, this.radius1, this.radius2, this.radius3, this.radius4);
+        String activeFont = this.emoji ? "emoji" : "gsans";
 
-        RoundRect.drawText(guiGraphics, getMessage().getString(), getX(), getY(), getWidth(), getHeight(), 0xFFFFFFFF, "gsans");
+        RoundRect.draw(guiGraphics, getX(), getY(), getWidth(), getHeight(), color, this.radius1, this.radius2, this.radius3, this.radius4);
+        RoundRect.drawText(guiGraphics, getMessage().getString(), getX(), getY(), getWidth(), getHeight(), textColor, activeFont, "center");
     }
 
     private int brighten(int color, int amount) {

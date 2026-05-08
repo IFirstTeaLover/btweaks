@@ -2,6 +2,7 @@ package dev.bsprout.btweaks.client.widgets;
 
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
+import dev.bsprout.btweaks.client.config.ConfigManager;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
@@ -18,8 +19,10 @@ import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class HitDetector implements Widget {
     String text = null;
+    private boolean isEnabled;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+        if (!isEnabled) return;
         text = null;
         var from = mc.player.getEyePosition();
         var to   = from.add(mc.player.getViewVector(1.0f).scale(10));
@@ -57,23 +60,28 @@ public class HitDetector implements Widget {
 
     @Override
     public float getWidth(int uiScale) {
+        if (!isEnabled) return 0;
         if (text == null) return 0;
         return mc.font.width(text) + uiScale * 4;
     }
 
     @Override
     public float getHeight(int uiScale) {
+        if (!isEnabled) return 0;
         return uiScale * 5;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        boolean enabled = ConfigManager.getBoolean(this.getName(), true);
+        isEnabled = enabled;
+        return enabled;
     }
 
     @Override
-    public void setEnabled(boolean state) {
-
+    public void setEnabled(boolean enabled) {
+        ConfigManager.set(this.getName(), enabled);
+        isEnabled = enabled;
     }
 
     @Override

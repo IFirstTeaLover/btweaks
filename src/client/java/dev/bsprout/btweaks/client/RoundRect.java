@@ -20,6 +20,8 @@ import static dev.bsprout.btweaks.client.BtweaksClient.LOGGER;
 public class RoundRect {
     public static FontDescription inter = new FontDescription.Resource(Identifier.fromNamespaceAndPath("btweaks", "inter"));
     public static FontDescription gsans = new FontDescription.Resource(Identifier.fromNamespaceAndPath("btweaks", "gsans"));
+    public static FontDescription notoEmoji = new FontDescription.Resource(Identifier.fromNamespaceAndPath("btweaks", "emoji"));
+    public static FontDescription noto = new FontDescription.Resource(Identifier.fromNamespaceAndPath("btweaks", "noto"));
     public static Identifier roundTexture = Identifier.fromNamespaceAndPath("btweaks", "textures/gui/rounded_corners.png");
 //    public static final VertexFormatElement RECT_SIZE = VertexFormatElement.register(
 //            7, 3, VertexFormatElement.Type.FLOAT, VertexFormatElement.Usage.UV, 2
@@ -115,6 +117,8 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
         graphics.blit(pipeline, roundTexture, ix + iw - br, iy + ih - br, texSize - uvSize, texSize - uvSize, br, br, uvSize, uvSize, texSize, texSize, argb);
     }
 
+    if (tl + tr + bl + br == 0){graphics.fill(ix, iy, ix + iw, iy + ih, argb); return;}
+
     // Top & Bottom
     graphics.fill(ix + tl, iy, ix + iw - tr, iy + Math.max(tl, tr), argb);
     graphics.fill(ix + bl, iy + ih - Math.max(bl, br), ix + iw - br, iy + ih, argb);
@@ -142,11 +146,13 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
         draw(graphics, x, y, width, height, argb, cornerSize, cornerSize, cornerSize, cornerSize);
     }
 
-    public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor, String fontType) {
+    public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor, String fontType, String align) {
         var font = Minecraft.getInstance().font;
         FontDescription fontId = switch (fontType) {
             case "gsans" -> gsans;
             case "inter" -> inter;
+            case "noto" -> noto;
+            case "emoji" -> notoEmoji;
             default -> null;
         };
         MutableComponent component = Component.literal(text);
@@ -162,9 +168,18 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
 
         int centerX = (int)(x + (width / 2) - ((float) textWidth / 2f));
         int centerY = (int)(y + (height / 2) - ((float) font.lineHeight / 2f));
-        graphics.drawString(font, component, centerX, centerY, textColor, false);
+
+        if (Objects.equals(align, "center")) {
+            graphics.drawString(font, component, centerX, centerY, textColor, false);
+        }else if (Objects.equals(align, "left")){
+            graphics.drawString(font, component, (int) x, centerY, textColor, false);
+        }else if (Objects.equals(align, "right")){
+            graphics.drawString(font, component, (int) x - textWidth, centerY, textColor, false);
+        }
+
     }
+
     public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor) {
-        drawText(graphics, text, x, y, width, height, textColor, "default");
+        drawText(graphics, text, x, y, width, height, textColor, "default", "center");
     }
 }

@@ -2,15 +2,20 @@ package dev.bsprout.btweaks.client.widgets;
 
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
+import dev.bsprout.btweaks.client.config.ConfigManager;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class RAMUsage implements Widget{
+    private boolean isEnabled;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
+
+        if (!isEnabled) return;
+
         Runtime runtime = Runtime.getRuntime();
 
         long maxMemory = runtime.maxMemory();
@@ -47,6 +52,7 @@ public class RAMUsage implements Widget{
 
     @Override
     public float getWidth(int uiScale) {
+        if (!isEnabled) return 0;
         Runtime runtime = Runtime.getRuntime();
         long usedMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
         long maxMB  = runtime.maxMemory() / 1048576L;
@@ -58,17 +64,21 @@ public class RAMUsage implements Widget{
 
     @Override
     public float getHeight(int uiScale) {
+        if (!isEnabled) return 0;
         return (uiScale * 5) * 2; // 2 rows
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        boolean enabled = ConfigManager.getBoolean(this.getName(), true);
+        isEnabled = enabled;
+        return enabled;
     }
 
     @Override
-    public void setEnabled(boolean state) {
-
+    public void setEnabled(boolean enabled) {
+        ConfigManager.set(this.getName(), enabled);
+        isEnabled = enabled;
     }
 
     @Override

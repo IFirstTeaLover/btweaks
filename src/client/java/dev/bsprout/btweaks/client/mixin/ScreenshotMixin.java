@@ -36,7 +36,7 @@ public class ScreenshotMixin {
                                 .withStyle(style -> style
                                         .withColor(ChatFormatting.GREEN)
                                         .withClickEvent(new ClickEvent.CopyToClipboard(pathWithTag))
-                                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to copy to clipboard")))
+                                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to ").append(Component.translatable("chat.copy"))))
                                 );
                         mc.append(copyButton);
                     }

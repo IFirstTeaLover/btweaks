@@ -2,15 +2,20 @@ package dev.bsprout.btweaks.client.widgets;
 
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
+import dev.bsprout.btweaks.client.config.ConfigManager;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class Coordinates implements Widget {
+    private boolean isEnabled;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
+
+        if (!isEnabled) return;
+
         String playerX = "§cX: §f" + Math.round(mc.player.getX());
         String playerY = "§aY: §f" + Math.round(mc.player.getY());
         String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
@@ -43,6 +48,7 @@ public class Coordinates implements Widget {
     @Override
     public float getWidth(int uiScale) {
         if (mc.player == null) return 0;
+        if (!isEnabled) return 0;
         String playerX = "§cX: §f" + Math.round(mc.player.getX());
         String playerY = "§aY: §f" + Math.round(mc.player.getY());
         String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
@@ -53,17 +59,21 @@ public class Coordinates implements Widget {
 
     @Override
     public float getHeight(int uiScale) {
+        if (!isEnabled) return 0;
         return (uiScale * 5) * 3; // 3 rows
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        boolean enabled = ConfigManager.getBoolean(this.getName(), true);
+        isEnabled = enabled;
+        return enabled;
     }
 
     @Override
-    public void setEnabled(boolean state) {
-
+    public void setEnabled(boolean enabled) {
+        ConfigManager.set(this.getName(), enabled);
+        isEnabled = enabled;
     }
 
     @Override

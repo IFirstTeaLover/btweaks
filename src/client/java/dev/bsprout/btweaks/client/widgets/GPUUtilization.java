@@ -5,20 +5,30 @@ import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.Identifier;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
-public class FPS implements Widget {
+public class GPUUtilization implements Widget {
+    int frameSkip = 0;
+    double cachedUsage = 0;
+    int targetSkip = 0;
     private boolean isEnabled;
+
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         if (!isEnabled) return;
 
-        String text = "FPS: " + mc.getFps();
+        frameSkip++;
 
+        if (frameSkip >= targetSkip / 5) {
+            targetSkip = mc.getFps();
+            frameSkip = 0;
+            cachedUsage = mc.getGpuUtilization();
+        }
+
+        String text = "GPU: " + cachedUsage;
 
         int height = uiScale * 5;
         int padding = uiScale * 2;
@@ -31,7 +41,8 @@ public class FPS implements Widget {
     @Override
     public float getWidth(int uiScale) {
         if (!isEnabled) return 0;
-        return mc.font.width("FPS: " + mc.getFps()) + uiScale * 4;
+        int padding = uiScale * 2;
+        return mc.font.width("GPU: " + cachedUsage) + (padding * 2);
     }
 
     @Override
@@ -55,7 +66,7 @@ public class FPS implements Widget {
 
     @Override
     public String getName() {
-        return "Framerate display";
+        return "GPU Utilization display";
     }
 
     @Override

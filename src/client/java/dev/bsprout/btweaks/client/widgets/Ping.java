@@ -5,11 +5,13 @@ import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.Identifier;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
-public class FPS implements Widget {
+public class Ping implements Widget {
+    int frameSkip = 0;
+    int cachedPing = 0;
+    int targetSkip = mc.getFps();
     private boolean isEnabled;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
@@ -17,8 +19,20 @@ public class FPS implements Widget {
 
         if (!isEnabled) return;
 
-        String text = "FPS: " + mc.getFps();
+        frameSkip++;
 
+        if (frameSkip >= targetSkip) {
+            targetSkip = mc.getFps();
+            frameSkip = 0;
+            if (mc.getConnection() != null && mc.player != null) {
+                var entry = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+                if (entry != null) {
+                    cachedPing = entry.getLatency();
+                }
+            }
+        }
+
+        String text = "Ping: " + cachedPing;
 
         int height = uiScale * 5;
         int padding = uiScale * 2;
@@ -31,7 +45,8 @@ public class FPS implements Widget {
     @Override
     public float getWidth(int uiScale) {
         if (!isEnabled) return 0;
-        return mc.font.width("FPS: " + mc.getFps()) + uiScale * 4;
+        int padding = uiScale * 2;
+        return mc.font.width("Ping: " + cachedPing) + (padding * 2);
     }
 
     @Override
@@ -55,7 +70,7 @@ public class FPS implements Widget {
 
     @Override
     public String getName() {
-        return "Framerate display";
+        return "Ping display";
     }
 
     @Override
