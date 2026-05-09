@@ -160,7 +160,7 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
         if (fontId != null) {
             component = component.withStyle(s -> s.withFont(fontId));
         } else if (!fontType.equals("default")) {
-            LOGGER.warn("btweaks: unknown font! Falling back to inter.");
+            LOGGER.warn("[btweaks] Unknown font! Falling back to inter.");
             component = component.withStyle(s -> s.withFont(inter));
         }
 
@@ -181,5 +181,13 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
 
     public static void drawText(GuiGraphics graphics, String text, float x, float y, float width, float height, int textColor) {
         drawText(graphics, text, x, y, width, height, textColor, "default", "center");
+    }
+
+    public static void drawImage(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height) {
+        RenderPipeline pipeline = RenderPipelines.GUI_TEXTURED;
+        int uvSize = 128;
+        int texSize = 128;
+
+        graphics.blit(pipeline, texture, x, y, 0, 0, width, height, uvSize, uvSize, texSize, texSize, 0xFFFFFFFF);
     }
 }

@@ -5,6 +5,7 @@ import dev.bsprout.btweaks.client.config.ConfigManager;
 import dev.bsprout.btweaks.client.config.ConfigWindow;
 import dev.bsprout.btweaks.client.widgets.*;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -26,10 +27,18 @@ public class BtweaksClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         long startTime = System.currentTimeMillis();
-        LOGGER.info("[btweaks] Initializing!");
+        LOGGER.info("[btweaks] Initializing KeyLogger, WorldCallback, Config!");
+
         KeyLogger.register();
         WorldCallback.register();
         ConfigManager.load();
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            client.execute(ConfigWindow::initializeWidgetsFromConfig);
+        });
+
+        long duration = System.currentTimeMillis() - startTime;
+
+        LOGGER.info("[btweaks] Initialized stage 1 successfully in {}ms!", duration);
 
 
         LOGGER.info("[btweaks] Initializing widget renderer!");
@@ -46,7 +55,7 @@ public class BtweaksClient implements ClientModInitializer {
 
         HudRenderCallback.EVENT.register(renderer);
 
-        long duration = System.currentTimeMillis() - startTime;
+        duration = System.currentTimeMillis() - startTime;
 
         LOGGER.info("[btweaks] Initialized successfully in {}ms!", duration);
     }

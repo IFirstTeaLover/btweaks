@@ -44,7 +44,7 @@ public class WidgetRenderer implements HudRenderCallback {
                 float w = inst.widget.getWidth(uiScale);
                 float h = inst.widget.getHeight(uiScale);
                 autoPositions.add(new float[]{0, curY});
-                curY += h + GAP;
+                if (h > 0) curY += h + GAP;
                 maxW = Math.max(maxW, w);
             }
             float totalAutoH = curY - GAP;

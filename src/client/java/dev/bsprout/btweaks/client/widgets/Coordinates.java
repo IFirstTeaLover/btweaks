@@ -3,6 +3,7 @@ package dev.bsprout.btweaks.client.widgets;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
+import dev.bsprout.btweaks.client.config.ConfigWindow;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -10,6 +11,7 @@ import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class Coordinates implements Widget {
     private boolean isEnabled;
+    private boolean started = false;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         if (mc.getDebugOverlay().showDebugScreen()) return;

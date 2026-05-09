@@ -5,12 +5,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.bsprout.btweaks.client.BtweaksClient.LOGGER;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import static dev.bsprout.btweaks.client.BtweaksClient.LOGGER;
+import static dev.bsprout.btweaks.client.RoundRect.drawImage;
 import static dev.bsprout.btweaks.client.RoundRect.drawText;
 import static dev.bsprout.btweaks.client.config.ConfigManager.save;
 import static dev.bsprout.btweaks.client.config.widgets.CoordinatesConfig.showCoordinatesConfig;
@@ -31,8 +33,15 @@ public class ConfigWindow extends Screen {
 
     private float scrollAmount = 0;
     private float maxScroll = 0;
+
     private float targetScroll = 0;
     float configScale = 0;
+
+    private int lastWidth = -1;
+    private int lastHeight = -1;
+
+    Identifier check;
+    Identifier close;
 
     private final java.util.Map<RoundButton, CheckmarkData> checkmarkMetadata = new java.util.HashMap<>();
 
@@ -49,7 +58,13 @@ public class ConfigWindow extends Screen {
         this.checkmarks.clear();
         this.checkmarkMetadata.clear();
 
+        check = Identifier.fromNamespaceAndPath("btweaks", "textures/gui/check.png");
+        close = Identifier.fromNamespaceAndPath("btweaks", "textures/gui/close.png");
+
         for (WidgetInstance inst : BtweaksClient.renderer.getWidgets()) {
+            boolean savedState = ConfigManager.getBoolean(inst.widget.getName(), true);
+            inst.widget.setEnabled(savedState);
+
             RoundButton btn = new RoundButton(0, 0, 0, 0,
                     Component.literal(inst.widget.getName()),
                     0, 0, 0, 0,
@@ -72,6 +87,16 @@ public class ConfigWindow extends Screen {
 
     @Override
     public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
+        if (this.width != lastWidth || this.height != lastHeight) {
+            this.lastWidth = this.width;
+            this.lastHeight = this.height;
+
+            this.targetScroll = 0;
+            this.scrollAmount = 0;
+
+            updateLayoutVariables();
+        }
+
         animationProgress = updateAnimations(delta);
 
         configScale = (float) Math.sin((animationProgress * Math.PI) / 2);
@@ -99,7 +124,7 @@ public class ConfigWindow extends Screen {
         RoundRect.draw(ctx, x, y, currentW, currentH, 0xF2202020, (int) configScaled((uiScale * 2.5)));
 
         RoundRect.draw(ctx, x, y, sidebarWidth, currentH, 0xF21A1A1A,
-                (int) (configScaled(uiScale * 4)), 0, (int) (configScaled(uiScale * 2.5)), 0);
+                (int) (configScaled(uiScale * 2.5)), 0, (int) (configScaled(uiScale * 2.5)), 0);
 
         // prevent scrollable buttons from showing outside config window
         ctx.enableScissor(
@@ -135,6 +160,16 @@ public class ConfigWindow extends Screen {
         }
 
         super.render(ctx, mouseX, mouseY, delta);
+
+        for (RoundButton boxBtn : this.checkmarks) {
+            int checkMargin = uiScale;
+
+            CheckmarkData data = checkmarkMetadata.get(boxBtn);
+
+            boolean enabled = data.inst.widget.isEnabled();
+
+            drawImage(ctx, enabled ? check : close , boxBtn.getX() + checkMargin, boxBtn.getY() + checkMargin, boxBtn.getWidth() - checkMargin * 2, boxBtn.getHeight() - checkMargin * 2);
+        }
 
         ctx.disableScissor();
     }
@@ -316,7 +351,7 @@ public class ConfigWindow extends Screen {
         final RoundButton[] checkBoxArr = new RoundButton[1];
         inst.widget.setEnabled(isEnabled);
         checkBoxArr[0] = new RoundButton(0, 0, 0, 0,
-                Component.literal(inst.widget.isEnabled() ? "✔" : "✖"),
+                Component.literal(""),
                 0, 0, 0, 0,
                 () -> {
                     boolean newState = !inst.widget.isEnabled();
@@ -324,7 +359,6 @@ public class ConfigWindow extends Screen {
 
                     if (checkBoxArr[0] != null) {
                         checkBoxArr[0].setColor(newState ? 0xFF4CAF50 : 0xFF333333);
-                        checkBoxArr[0].setMessage(Component.literal(newState ? "✔" : "✖"));
                     }
 
                     ConfigManager.set(inst.widget.getName(), newState);
@@ -348,5 +382,73 @@ public class ConfigWindow extends Screen {
 
         int descY = y + height - padding;
         drawText(graphics, desc, x + padding, descY, 0, 0, 0xFFAAAAAA, "gsans", "left");
+    }
+
+    private void updateLayoutVariables() {
+        int uiScale = mc.getWindow().getGuiScale();
+
+        float configWidth = this.width * 0.6f;
+        float configHeight = configWidth * 0.62f;
+        float currentW = configScaled(configWidth);
+        float currentH = configScaled(configHeight);
+
+        float x = (this.width - currentW) / 2f;
+        float y = (this.height - currentH) / 2f;
+        float margin = configScaled((uiScale * 2));
+        float sidebarWidth = currentW * sidebarSize;
+        float mainAreaW = currentW - sidebarWidth;
+        float mainContentX = x + sidebarWidth;
+
+        widgetsButton.setX((int) (x + margin));
+        widgetsButton.setY((int) (y + margin));
+        widgetsButton.setWidth((int) (sidebarWidth - margin * 2));
+        widgetsButton.setHeight(widgetsButton.getWidth() / 5);
+
+        int buttonRounding = (int) configScaled(uiScale);
+        widgetsButton.setRadius(buttonRounding, buttonRounding, buttonRounding, buttonRounding);
+
+        int buttonWidth = (int) (mainAreaW - (margin * 2));
+        int buttonHeight = (int) (buttonWidth / 10f);
+
+        for (int i = 0; i < this.menuButtons.size(); i++) {
+            RoundButton btn = this.menuButtons.get(i);
+            btn.setWidth(buttonWidth);
+            btn.setHeight(buttonHeight);
+            btn.setX((int) (mainContentX + margin));
+            btn.setY((int) (y + margin + (i * (buttonHeight + margin)) - scrollAmount));
+
+            int r = (int) configScaled(uiScale * 1.6f);
+            btn.setRadius(r, r, r, r);
+        }
+
+        for (int j = 0; j < this.checkmarks.size(); j++) {
+            RoundButton boxBtn = this.checkmarks.get(j);
+            int cardY = (int) (y + margin + (j * (buttonHeight + margin)) - scrollAmount);
+            int boxSize = (int) (buttonHeight * 0.75f);
+            int horizontalPadding = (buttonHeight - boxSize) / 2;
+
+            boxBtn.setWidth(boxSize);
+            boxBtn.setHeight(boxSize);
+            boxBtn.setX((int)(mainContentX + mainAreaW - margin - boxSize - horizontalPadding));
+            boxBtn.setY(cardY + horizontalPadding);
+
+            int boxRadius = (int)configScaled(uiScale * 1.2f);
+            boxBtn.setRadius(boxRadius, boxRadius, boxRadius, boxRadius);
+        }
+
+        float totalContentHeight = Math.max(this.menuButtons.size(), this.checkmarks.size()) * (buttonHeight + margin);
+        this.maxScroll = Math.max(0, totalContentHeight - currentH + (margin * 2));
+    }
+
+    public static void initializeWidgetsFromConfig() {
+        if (BtweaksClient.renderer != null) {
+            LOGGER.info("[btweaks] World load detected. Syncing widget states with config.");
+
+            for (WidgetInstance inst : BtweaksClient.renderer.getWidgets()) {
+                boolean savedState = ConfigManager.getBoolean(inst.widget.getName(), true);
+
+                inst.widget.setEnabled(savedState);
+            }
+        }
     }
 }
