@@ -3,10 +3,13 @@ package dev.bsprout.btweaks.client.widgets;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
+import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
+import io.github.humbleui.skija.Canvas;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import dev.bsprout.btweaks.client.BtweaksClient;
 
 public class Ping implements Widget {
     int frameSkip = 0;
@@ -15,9 +18,12 @@ public class Ping implements Widget {
     private boolean isEnabled;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+        Canvas canvas = BtweaksClient.canvas;
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         if (!isEnabled) return;
+
+        int color = WidgetGeneral.getGlobalWidgetColor();
 
         frameSkip++;
 
@@ -38,8 +44,8 @@ public class Ping implements Widget {
         int padding = uiScale * 2;
         int textWidth = mc.font.width(text);
         float rectWidth = textWidth + padding * 2;
-        RoundRect.draw(ctx, x, y, rectWidth, height, 0x80262626, uiScale);
-        RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
+        RoundRect.draw(canvas, x, y, rectWidth, height, color, uiScale);
+        RoundRect.drawText(canvas, text, x, y, rectWidth, height, 0xFFFFFFFF, "gsans", "left", 11f);
     }
 
     @Override

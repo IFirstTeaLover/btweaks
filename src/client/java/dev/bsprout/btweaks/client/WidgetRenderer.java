@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -8,10 +9,13 @@ import net.minecraft.client.DeltaTracker;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dev.bsprout.btweaks.client.BtweaksClient.canvas;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 
 public class WidgetRenderer implements HudRenderCallback {
-
+    private final GLState glState = new GLState();
     private final List<WidgetInstance> widgets = new ArrayList<>();
 
     public void add(Widget widget, int col, int row, WidgetInstance.Anchor anchor) {
@@ -20,12 +24,22 @@ public class WidgetRenderer implements HudRenderCallback {
 
     @Override
     public void onHudRender(GuiGraphics ctx, DeltaTracker tick) {
+        if (BtweaksClient.canvas == null) return;
+
+        glState.push();
+
+        BtweaksClient.context.resetGLAll();
+
+        BtweaksClient.canvas.save();
+        int uiScale = mc.getWindow().getGuiScale();
+        BtweaksClient.canvas.scale(uiScale, uiScale);
+
+        BtweaksClient.canvas.clear(0x00000000);
+
         final float GAP = mc.getWindow().getGuiScale();
-        if (mc.player == null || mc.options.hideGui) return;
 
         int sw = mc.getWindow().getGuiScaledWidth();
         int sh = mc.getWindow().getGuiScaledHeight();
-        int uiScale = mc.getWindow().getGuiScale();
 
         for (WidgetInstance.Anchor anchor : WidgetInstance.Anchor.values()) {
             List<WidgetInstance> group = widgets.stream()
@@ -88,7 +102,14 @@ public class WidgetRenderer implements HudRenderCallback {
                 boolean bottomAnchor = anchor == WidgetInstance.Anchor.BOTTOM_LEFT || anchor == WidgetInstance.Anchor.BOTTOM_RIGHT;
                 inst.widget.render(ctx, uiScale, wx, bottomAnchor ? wy + h : wy, tick);
             }
+
         }
+        BtweaksClient.canvas.restore();
+        BtweaksClient.context.flush();
+
+        glState.pop();
+
+        ctx.nextStratum();
     }
 
     public List<WidgetInstance> getWidgets() {

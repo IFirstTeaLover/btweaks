@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client;
 
+import io.github.humbleui.skija.Canvas;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -16,10 +17,12 @@ public class RoundButton extends AbstractButton {
     private int radius3;
     private int radius4;
     private int color;
+    private int transparency;
     private boolean emoji;
     private int textColor = 0xFFFFFFFF;
     private final Runnable onClick;
     private float hoverProgress;
+    private Canvas canvas = BtweaksClient.canvas;
 
     public RoundButton(int x, int y, int width, int height, Component message, int radius1, int radius2, int radius3, int radius4, Runnable onClick, int color, boolean emoji) {
         super(x, y, width, height, message);
@@ -42,6 +45,7 @@ public class RoundButton extends AbstractButton {
     public void setColor(int color){
         this.color = color;
     }
+    public int getColor(){return this.color;}
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
@@ -85,8 +89,8 @@ public class RoundButton extends AbstractButton {
 
         String activeFont = this.emoji ? "emoji" : "gsans";
 
-        RoundRect.draw(guiGraphics, getX(), getY(), getWidth(), getHeight(), color, this.radius1, this.radius2, this.radius3, this.radius4);
-        RoundRect.drawText(guiGraphics, getMessage().getString(), getX(), getY(), getWidth(), getHeight(), textColor, activeFont, "center");
+        RoundRect.draw(canvas, getX(), getY(), getWidth(), getHeight(), color, this.radius1, this.radius2, this.radius3, this.radius4);
+        RoundRect.drawText(canvas, getMessage().getString(), getX(), getY(), getWidth(), getHeight(), textColor, activeFont, "center", 11f);
     }
 
     private int brighten(int color, int amount) {
@@ -96,6 +100,10 @@ public class RoundButton extends AbstractButton {
         int a = (color >> 24) & 0xFF;
 
         return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    public void applyTransparency(int transparency){
+        this.transparency = transparency;
     }
 
     @Override
