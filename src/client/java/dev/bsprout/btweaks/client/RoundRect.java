@@ -92,46 +92,41 @@ public static void draw(GuiGraphics graphics, float x, float y, float width, flo
 
     RenderPipeline pipeline = RenderPipelines.GUI_TEXTURED;
 
+    // 1. Calculate Grid Boundaries
+    // Left column is the widest of the two left corners
+    int leftW = Math.max(tl, bl);
+    // Right column is the widest of the two right corners
+    int rightW = Math.max(tr, br);
+    // Top row is the tallest of the two top corners
+    int topH = Math.max(tl, tr);
+    // Bottom row is the tallest of the two bottom corners
+    int bottomH = Math.max(bl, br);
 
-    // Top-Left
-    if (tl > 0) {
-        graphics.blit(pipeline, roundTexture, ix, iy, 0, 0, tl, tl, uvSize, uvSize, texSize, texSize, argb);
-    }
+    // 2. Corner Textures (The actual curves)
+    if (tl > 0) graphics.blit(pipeline, roundTexture, ix, iy, 0, 0, tl, tl, uvSize, uvSize, texSize, texSize, argb);
+    if (tr > 0) graphics.blit(pipeline, roundTexture, ix + iw - tr, iy, texSize - uvSize, 0, tr, tr, uvSize, uvSize, texSize, texSize, argb);
+    if (bl > 0) graphics.blit(pipeline, roundTexture, ix, iy + ih - bl, 0, texSize - uvSize, bl, bl, uvSize, uvSize, texSize, texSize, argb);
+    if (br > 0) graphics.blit(pipeline, roundTexture, ix + iw - br, iy + ih - br, texSize - uvSize, texSize - uvSize, br, br, uvSize, uvSize, texSize, texSize, argb);
 
-    // Top-Right
-    if (tr > 0) {
-        graphics.blit(pipeline, roundTexture, ix + iw - tr, iy, texSize - uvSize, 0, tr, tr, uvSize, uvSize, texSize, texSize, argb);
-    }
+    // 3. The 4 Edges (Fills)
+    // Top Edge: between tl and tr
+    graphics.fill(ix + tl, iy, ix + iw - tr, iy + topH, argb);
+    // Bottom Edge: between bl and br
+    graphics.fill(ix + bl, iy + ih - bottomH, ix + iw - br, iy + ih, argb);
+    // Left Edge: between topH and bottomH
+    graphics.fill(ix, iy + tl, ix + leftW, iy + ih - bl, argb);
+    // Right Edge: between topH and bottomH
+    graphics.fill(ix + iw - rightW, iy + tr, ix + iw, iy + ih - br, argb);
 
-    // Bottom-Left
-    if (bl > 0) {
-        graphics.blit(pipeline, roundTexture, ix, iy + ih - bl, 0, texSize - uvSize, bl, bl, uvSize, uvSize, texSize, texSize, argb);
-    }
+    // 4. The Center (The final inner block)
+    graphics.fill(ix + leftW, iy + topH, ix + iw - rightW, iy + ih - bottomH, argb);
 
-    // Bottom-Right
-    if (br > 0) {
-        graphics.blit(pipeline, roundTexture, ix + iw - br, iy + ih - br, texSize - uvSize, texSize - uvSize, br, br, uvSize, uvSize, texSize, texSize, argb);
-    }
-
-    if (tl + tr + bl + br == 0){graphics.fill(ix, iy, ix + iw, iy + ih, argb); return;}
-
-    // Top & Bottom
-    graphics.fill(ix + tl, iy, ix + iw - tr, iy + Math.max(tl, tr), argb);
-    graphics.fill(ix + bl, iy + ih - Math.max(bl, br), ix + iw - br, iy + ih, argb);
-
-    // Left & Right
-    graphics.fill(ix, iy + tl, ix + tl, iy + ih - bl, argb);
-    graphics.fill(ix + iw - tr, iy + tr, ix + iw, iy + ih - br, argb);
-
-    // Center block
-    int maxLeft = Math.max(tl, bl);
-    int maxRight = Math.max(tr, br);
-    graphics.fill(ix + maxLeft, iy + Math.max(tl, tr), ix + iw - maxRight, iy + ih - Math.max(bl, br), argb);
-
-    if (tl == 0) graphics.fill(ix, iy, ix + maxLeft, iy + maxLeft, argb);
-    if (tr == 0) graphics.fill(ix + iw - maxRight, iy, ix + iw, iy + maxRight, argb);
-    if (bl == 0) graphics.fill(ix, iy + ih - maxLeft, ix + maxLeft, iy + ih, argb);
-    if (br == 0) graphics.fill(ix + iw - maxRight, iy + ih - maxRight, ix + iw, iy + ih, argb);
+    // 5. Zero-Radius Corner Fills
+    // If a corner is 0, the texture wasn't drawn. We fill that corner's quadrant.
+    if (tl == 0) graphics.fill(ix, iy, ix + leftW, iy + topH, argb);
+    if (tr == 0) graphics.fill(ix + iw - rightW, iy, ix + iw, iy + topH, argb);
+    if (bl == 0) graphics.fill(ix, iy + ih - bottomH, ix + leftW, iy + ih, argb);
+    if (br == 0) graphics.fill(ix + iw - rightW, iy + ih - bottomH, ix + iw, iy + ih, argb);
 }
 
     public static void draw(GuiGraphics graphics, float x, float y, float width, float height, int argb) {
