@@ -11,8 +11,6 @@ import java.util.List;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.canvas;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 
 public class WidgetRenderer implements HudRenderCallback {
     private final GLState glState = new GLState();
@@ -33,8 +31,6 @@ public class WidgetRenderer implements HudRenderCallback {
         BtweaksClient.canvas.save();
         int uiScale = mc.getWindow().getGuiScale();
         BtweaksClient.canvas.scale(uiScale, uiScale);
-
-        BtweaksClient.canvas.clear(0x00000000);
 
         final float GAP = mc.getWindow().getGuiScale();
 
@@ -105,11 +101,12 @@ public class WidgetRenderer implements HudRenderCallback {
 
         }
         BtweaksClient.canvas.restore();
+
         BtweaksClient.context.flush();
 
-        glState.pop();
+        BtweaksClient.context.submit(true);
 
-        ctx.nextStratum();
+        glState.pop();
     }
 
     public List<WidgetInstance> getWidgets() {

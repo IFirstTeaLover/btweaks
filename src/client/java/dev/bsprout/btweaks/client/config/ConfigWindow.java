@@ -113,7 +113,6 @@ public class ConfigWindow extends Screen {
         GL11.glColorMask(true, true, true, true);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
 
         globalDelta = delta;
@@ -134,13 +133,13 @@ public class ConfigWindow extends Screen {
         FADE_SPEED = 0.5f * delta;
 
         int uiScale = mc.getWindow().getGuiScale();
-        float configWidth = this.width * 0.6f;
+        float configWidth = this.width * uiScale * 0.6f;
         float configHeight = configWidth * 0.62f;
         float currentW = configScaled(configWidth);
         float currentH = configScaled(configHeight);
-        float x = (this.width - currentW) / 2f;
-        float y = (this.height - currentH) / 2f;
-        float margin = configScaled((uiScale * 2));
+        float x = (this.width - currentW) / 2f * uiScale;
+        float y = (this.height - currentH) / 2f * uiScale;
+        float margin = configScaled((uiScale * 2)) * uiScale;
         float sidebarWidth = currentW * sidebarSize;
         float mainAreaW = currentW - sidebarWidth;
         float mainContentX = x + sidebarWidth;
@@ -149,16 +148,16 @@ public class ConfigWindow extends Screen {
 
         ctx.clear(0x00000000);
 
-        RoundRect.draw(ctx, x, y, currentW, currentH, scaleAlpha(0xF2202020), (int) configScaled((uiScale * 2.5)));
+        RoundRect.draw(ctx, x, y, currentW, currentH, scaleAlpha(0xF2202020), (int) configScaled((uiScale * uiScale * 2.5)));
         RoundRect.draw(ctx, x, y, sidebarWidth, currentH, scaleAlpha(0xF21A1A1A),
                 (int) (configScaled(uiScale * 2.5)), 0, (int) (configScaled(uiScale * 2.5)), 0);
 
-        ctx.clipRect(Rect.makeLTRB(
-                (x + 3) * uiScale, (y + 3) * uiScale,
-                (x + currentW - 3) * uiScale, (y + currentH - 3) * uiScale
-        ));
+//        ctx.clipRect(Rect.makeLTRB(
+//                (x + 3) * uiScale, (y + 3) * uiScale,
+//                (x + currentW - 3) * uiScale, (y + currentH - 3) * uiScale
+//        ));
 
-        updateConfigButtonsLayout(x, y, margin, sidebarWidth, mainAreaW, mainContentX, currentH, uiScale);
+        updateConfigButtonsLayout(x, y, margin, sidebarWidth, mainAreaW, mainContentX, currentH, uiScale * uiScale);
 
         for (RoundButton boxBtn : this.checkmarks) {
             CheckmarkData data = checkmarkMetadata.get(boxBtn);
@@ -168,19 +167,20 @@ public class ConfigWindow extends Screen {
             int cardY = boxBtn.getY() - (cardHeight / 2) + (boxBtn.getHeight() / 2);
 
             drawSettingCard(ctx, cardX, cardY, cardWidth, cardHeight,
-                    data.title, data.desc, data.inst.widget.isEnabled(), uiScale);
+                    data.title, data.desc, data.inst.widget.isEnabled(), uiScale * uiScale);
         }
 
         if (transitionAlpha > 0) {
             int alphaInt = (int) (transitionAlpha * 255);
             int color = (alphaInt << 24) | (0x00202020);
-            RoundRect.draw(ctx, mainContentX, y, mainAreaW, currentH, scaleAlpha(color), (int) configScaled((uiScale * 2.5)));
+            RoundRect.draw(ctx, mainContentX, y, mainAreaW, currentH, scaleAlpha(color), (int) configScaled((uiScale * uiScale * 2.5)));
         }
 
         ctx.restore();
 
         glState.pop();
         BtweaksClient.context.flush();
+        BtweaksClient.context.submit(true);
 
         super.render(ictx, mouseX, mouseY, delta);
         ictx.nextStratum();
@@ -380,7 +380,7 @@ public class ConfigWindow extends Screen {
         final RoundButton[] checkBoxArr = new RoundButton[1];
         inst.widget.setEnabled(isEnabled);
         checkBoxArr[0] = new RoundButton(0, 0, 0, 0,
-                Component.literal(""),
+                Component.literal(" "),
                 0, 0, 0, 0,
                 () -> {
                     boolean newState = !inst.widget.isEnabled();

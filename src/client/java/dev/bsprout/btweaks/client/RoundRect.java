@@ -32,7 +32,8 @@ public class RoundRect {
 
         Typeface face = (fontType.equals("gsans")) ? gsansTypeface : interTypeface;
 
-        String safeText = sanitize(text);
+        String safeText = text.replace('\uFFFD', ' ')
+                .replaceAll("[^\u0000-\uFFFF]", "?");
 
         try (Font font = new Font(face, fontSize);
              Paint paint = new Paint().setColor(textColor).setAntiAlias(true)) {
@@ -53,26 +54,6 @@ public class RoundRect {
 
             canvas.drawString(safeText, drawX, drawY, font, paint);
         }
-    }
-
-    private static String sanitize(String input) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if (Character.isHighSurrogate(c)) {
-                if (i + 1 < input.length() && Character.isLowSurrogate(input.charAt(i + 1))) {
-                    sb.append(c);
-                    sb.append(input.charAt(++i));
-                } else {
-                    sb.append('?'); // Replace broken high surrogate
-                }
-            } else if (Character.isLowSurrogate(c)) {
-                sb.append('?'); // Replace broken low surrogate
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 
     /**

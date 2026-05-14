@@ -1,6 +1,7 @@
 package dev.bsprout.btweaks.client;
 
 import io.github.humbleui.skija.Canvas;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -86,11 +87,11 @@ public class RoundButton extends AbstractButton {
         int b = (int) (bb + (eb - bb) * hoverProgress);
 
         int color = (255 << 24) | (r << 16) | (g << 8) | b;
+        int uiScale = Minecraft.getInstance().getWindow().getGuiScale();
 
         String activeFont = this.emoji ? "emoji" : "gsans";
-
         RoundRect.draw(canvas, getX(), getY(), getWidth(), getHeight(), color, this.radius1, this.radius2, this.radius3, this.radius4);
-        RoundRect.drawText(canvas, getMessage().getString(), getX(), getY(), getWidth(), getHeight(), textColor, activeFont, "center", 11f);
+        RoundRect.drawText(canvas, getMessage().getString(), getX() * uiScale, getY() * uiScale, getWidth() * uiScale, getHeight() * uiScale, textColor, activeFont, "center", 11f);
     }
 
     private int brighten(int color, int amount) {

@@ -22,7 +22,6 @@ public class FPS implements Widget {
         if (!isEnabled) return;
 
         canvas.save();
-        canvas.translate(x, y);
 
         String text = "FPS: " + mc.getFps();
         int color = WidgetGeneral.getGlobalWidgetColor();
@@ -31,8 +30,8 @@ public class FPS implements Widget {
         int padding = uiScale * 2;
         int textWidth = mc.font.width(text);
         float rectWidth = textWidth + padding * 2;
-        RoundRect.draw(canvas, 0, 0, rectWidth, height, color, uiScale);
-        RoundRect.drawText(canvas, text, 0, 0, rectWidth, height, 0xFFFFFFFF, "gsans", "left", 11f);
+        RoundRect.draw(canvas, x, y, rectWidth * uiScale, height * uiScale, color, uiScale * uiScale);
+        RoundRect.drawText(canvas, text, x, y, rectWidth * uiScale, height * uiScale, 0xFFFFFFFF, "gsans", "left", 11f);
 
         canvas.restore();
     }
