@@ -4,6 +4,7 @@ import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
 import dev.bsprout.btweaks.client.config.ConfigWindow;
+import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -18,6 +19,8 @@ public class Coordinates implements Widget {
 
         if (!isEnabled) return;
 
+        int color = WidgetGeneral.getGlobalWidgetColor();
+
         String playerX = "§cX: §f" + Math.round(mc.player.getX());
         String playerY = "§aY: §f" + Math.round(mc.player.getY());
         String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
@@ -29,21 +32,21 @@ public class Coordinates implements Widget {
 
         // Draw X
         float rectWidthX = mc.font.width(playerX) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626, uiScale);
+        RoundRect.draw(ctx, x, currentY, rectWidthX, height, color, uiScale);
         RoundRect.drawText(ctx, playerX, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw Y
         float rectWidthY = mc.font.width(playerY) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626, uiScale);
+        RoundRect.draw(ctx, x, currentY, rectWidthY, height, color, uiScale);
         RoundRect.drawText(ctx, playerY, x, currentY, rectWidthY, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw Z
         float rectWidthZ = mc.font.width(playerZ) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthZ, height, 0x80262626, uiScale);
+        RoundRect.draw(ctx, x, currentY, rectWidthZ, height, color, uiScale);
         RoundRect.drawText(ctx, playerZ, x, currentY, rectWidthZ, height, 0xFFFFFFFF);
     }
 

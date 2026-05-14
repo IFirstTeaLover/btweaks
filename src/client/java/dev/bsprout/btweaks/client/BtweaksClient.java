@@ -3,8 +3,10 @@ package dev.bsprout.btweaks.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.bsprout.btweaks.client.config.ConfigManager;
 import dev.bsprout.btweaks.client.config.ConfigWindow;
+import dev.bsprout.btweaks.client.qol.Calculator;
 import dev.bsprout.btweaks.client.widgets.*;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.KeyMapping;
@@ -35,6 +37,11 @@ public class BtweaksClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             client.execute(ConfigWindow::initializeWidgetsFromConfig);
         });
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            Calculator.register(dispatcher);
+        });
+
 
         long duration = System.currentTimeMillis() - startTime;
 

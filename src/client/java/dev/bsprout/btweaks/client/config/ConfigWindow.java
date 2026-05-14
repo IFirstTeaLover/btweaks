@@ -1,6 +1,7 @@
 package dev.bsprout.btweaks.client.config;
 
 import dev.bsprout.btweaks.client.*;
+import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -25,7 +26,7 @@ import static dev.bsprout.btweaks.client.config.widgets.RAMUsageConfig.showRAMUs
 
 public class ConfigWindow extends Screen {
     public static RoundButton widgetsButton;
-    private float animationProgress = 0f;
+    private float animationProgress = 0.6f;
     private static final float sidebarSize = 0.25f;
     private final List<RoundButton> menuButtons = new ArrayList<>();
 
@@ -35,10 +36,16 @@ public class ConfigWindow extends Screen {
     private float maxScroll = 0;
 
     private float targetScroll = 0;
-    float configScale = 0;
+    static float configScale = 0;
 
     private int lastWidth = -1;
     private int lastHeight = -1;
+
+    public static double globalDelta = 1.0;
+    private float transitionAlpha = 0f;
+    private boolean fadingIn = false;
+    private Runnable postFadeAction = null;
+    private float FADE_SPEED = 0.01f;
 
     Identifier check;
     Identifier close;
@@ -54,7 +61,6 @@ public class ConfigWindow extends Screen {
     @Override
     protected void init() {
         this.menuButtons.clear();
-        this.clearWidgets();
         this.checkmarks.clear();
         this.checkmarkMetadata.clear();
 
@@ -69,11 +75,11 @@ public class ConfigWindow extends Screen {
                     Component.literal(inst.widget.getName()),
                     0, 0, 0, 0,
                     () -> {
-                        this.menuButtons.forEach(this::removeWidget);
-
-                        this.menuButtons.clear();
-
-                        this.showWidgetConfig(inst.widget.getName());
+                        this.fadingIn = true;
+                        this.postFadeAction = () -> {
+                            this.menuButtons.clear();
+                            this.showWidgetConfig(inst.widget.getName());
+                        };
                     },
                     0xFF333333, false
             );
@@ -81,7 +87,14 @@ public class ConfigWindow extends Screen {
             this.addRenderableWidget(btn);
         }
 
-        widgetsButton = new RoundButton(0, 0, 0, 0, Component.literal("Widgets"), 0, 0, 0, 0, this::init, 0xFF196EE8, false);
+        widgetsButton = new RoundButton(0, 0, 0, 0,
+                Component.literal("Widgets"), 0, 0, 0, 0,
+                () -> {
+                    this.fadingIn = true;
+                    this.postFadeAction = this::init;
+                },
+                0xFF196EE8, false
+        );
         this.addRenderableWidget(widgetsButton);
     }
 
@@ -100,7 +113,7 @@ public class ConfigWindow extends Screen {
         animationProgress = updateAnimations(delta);
 
         configScale = (float) Math.sin((animationProgress * Math.PI) / 2);
-
+        FADE_SPEED = 0.5f * delta;
         int uiScale = this.minecraft.getWindow().getGuiScale();
 
         float configWidth = this.width * 0.6f;
@@ -160,6 +173,12 @@ public class ConfigWindow extends Screen {
         }
 
         super.render(ctx, mouseX, mouseY, delta);
+
+        if (transitionAlpha > 0) {
+            int alphaInt = (int) (transitionAlpha * 255);
+            int color = (alphaInt << 24) | (0x00202020);
+            RoundRect.draw(ctx, mainContentX, y, mainAreaW, currentH, scaleAlpha(color), (int) configScaled((uiScale * 2.5)));
+        }
 
         for (RoundButton boxBtn : this.checkmarks) {
             int checkMargin = uiScale;
@@ -248,13 +267,20 @@ public class ConfigWindow extends Screen {
     }
 
     private float updateAnimations(float delta){
-        float animationSpeed = 4.0f;
+        float animationSpeed = 2.0f;
         if (Math.abs(scrollAmount - targetScroll) > 0.1f) {
             scrollAmount += (targetScroll - scrollAmount) * 0.2f;
         } else {
             scrollAmount = targetScroll;
         }
         return Math.min(1.0f, animationProgress + (delta / 20f) * animationSpeed);
+    }
+
+    private static int scaleAlpha(int color) {
+        float t = (configScale - 0.6f) / 0.4f;
+        float clamped = Math.max(0f, Math.min(1f, t));
+        int a = (int) ((color >> 24 & 0xFF) * clamped);
+        return (a << 24) | (color & 0x00FFFFFF);
     }
 
     private float configScaled(int var){
@@ -443,7 +469,7 @@ public class ConfigWindow extends Screen {
     public static void initializeWidgetsFromConfig() {
         if (BtweaksClient.renderer != null) {
             LOGGER.info("[btweaks] World load detected. Syncing widget states with config.");
-
+            WidgetGeneral.setGlobalWidgetColor(0xA6292929);
             for (WidgetInstance inst : BtweaksClient.renderer.getWidgets()) {
                 boolean savedState = ConfigManager.getBoolean(inst.widget.getName(), true);
 

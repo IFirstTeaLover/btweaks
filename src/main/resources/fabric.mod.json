@@ -8,7 +8,7 @@
 		"BSprout"
 	],
 	"contact": {
-		"homepage": "https://github.com/ifirsttealover/btweaks",
+		"homepage": "https://modrinth.com/mod/btweaks",
 		"sources": "https://github.com/ifirsttealover/btweaks"
 	},
 	"license": "MIT",
@@ -17,7 +17,11 @@
 	"entrypoints": {
 		"client": [
 			"dev.bsprout.btweaks.client.BtweaksClient"
-		]
+		],
+
+      "preLaunch": [
+        "dev.bsprout.btweaks.client.PreLaunchLoading"
+      ]
 	},
 	"mixins": [
 		"btweaks.mixins.json",

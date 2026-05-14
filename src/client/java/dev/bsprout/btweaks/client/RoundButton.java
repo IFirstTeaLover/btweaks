@@ -20,6 +20,7 @@ public class RoundButton extends AbstractButton {
     private int textColor = 0xFFFFFFFF;
     private final Runnable onClick;
     private float hoverProgress;
+    private int transparency;
 
     public RoundButton(int x, int y, int width, int height, Component message, int radius1, int radius2, int radius3, int radius4, Runnable onClick, int color, boolean emoji) {
         super(x, y, width, height, message);
@@ -42,6 +43,7 @@ public class RoundButton extends AbstractButton {
     public void setColor(int color){
         this.color = color;
     }
+    public int getColor(){return this.color;}
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
@@ -101,5 +103,9 @@ public class RoundButton extends AbstractButton {
     @Override
     public void playDownSound(SoundManager handler) {
         // silence button
+    }
+
+    public void applyTransparency(int transparency){
+        this.transparency = transparency;
     }
 }

@@ -3,6 +3,7 @@ package dev.bsprout.btweaks.client.widgets;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
+import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -15,7 +16,7 @@ public class RAMUsage implements Widget{
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         if (!isEnabled) return;
-
+        int color = WidgetGeneral.getGlobalWidgetColor();
         Runtime runtime = Runtime.getRuntime();
 
         long maxMemory = runtime.maxMemory();
@@ -28,8 +29,8 @@ public class RAMUsage implements Widget{
         long usedMB  = usedMemory / 1048576L;
         long allocMB = totalMemory / 1048576L;
 
-        String line1 = "Memory used: " + usedMB + "MB";
-        String line2 = "Memory allocated: " + allocMB + "/" + maxMB + "MB";
+        String line1 = "Memory: " + usedMB;
+        String line2 = "Allocated: " + allocMB + "/" + maxMB;
 
         int height = uiScale * 5;
         int padding = uiScale * 2;
@@ -38,14 +39,14 @@ public class RAMUsage implements Widget{
 
         // Draw 1
         float rectWidthX = mc.font.width(line1) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626, 3);
+        RoundRect.draw(ctx, x, currentY, rectWidthX, height, color, 3);
         RoundRect.drawText(ctx, line1, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw 2
         float rectWidthY = mc.font.width(line2) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626, 3);
+        RoundRect.draw(ctx, x, currentY, rectWidthY, height, color, 3);
         RoundRect.drawText(ctx, line2, x, currentY, rectWidthY, height, 0xFFFFFFFF);
     }
 

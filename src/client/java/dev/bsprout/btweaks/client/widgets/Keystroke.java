@@ -4,6 +4,8 @@ import dev.bsprout.btweaks.client.KeyLogger;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
+import dev.bsprout.btweaks.client.helpers.Tinter;
+import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.DeltaTracker;
@@ -34,7 +36,7 @@ public class Keystroke implements Widget {
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
         int sw = mc.getWindow().getGuiScaledWidth();
-
+        int color = WidgetGeneral.getGlobalWidgetColor();
         float pad  = uiScale;
         float size = sw / (90.0f / uiScale);
 
@@ -61,9 +63,11 @@ public class Keystroke implements Widget {
         if (deltaTimeCapped > 1) deltaTimeCapped = 1; // cap at 1 so that lerp doesn't overshoot to yellow
 
         int[] colors = new int[7];
+        int[] textColors = new int[7];
         for (int i = 0; i < 7; i++) {
             blend[i] += ((pressed[i] ? 1f : 0f) - blend[i]) * LERPSPEED * deltaTimeCapped;
-            colors[i] = lerpColor(0x80262626, 0x80D9D9D9, blend[i]);
+            colors[i]    = lerpColor(color, Tinter.tint(color, 150, 1), blend[i]);
+            textColors[i] = lerpColor(0xFFFFFFFF, 0xFF000000, blend[i]);
         }
 
         var keyUp    = mc.options.keyUp;
@@ -86,20 +90,21 @@ public class Keystroke implements Widget {
         float lineX = x + spaceMargin;
         float lineW = (x + size * 3 + pad * 2 - spaceMargin) - lineX;
 
-        int strokeSize = (int) (uiScale * 1.6);
+        int strokeSize = (int) (uiScale * 2);
+        int smallStroke = strokeSize / 2;
 
         // W
-        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0], strokeSize);
+        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0], strokeSize, strokeSize, smallStroke, smallStroke);
         // A S D
-        RoundRect.draw(ctx, x,              wasdY, size, size, colors[2], strokeSize);
-        RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1], strokeSize);
-        RoundRect.draw(ctx, x + size*2+pad*2, wasdY, size, size, colors[3], strokeSize);
+        RoundRect.draw(ctx, x,              wasdY, size, size, colors[2], strokeSize, smallStroke, smallStroke, smallStroke);
+        RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1], smallStroke, smallStroke, smallStroke, smallStroke);
+        RoundRect.draw(ctx, x + size*2+pad*2, wasdY, size, size, colors[3], smallStroke,strokeSize, smallStroke, smallStroke);
         // Space
-        RoundRect.draw(ctx, x, spaceY, size * 3 + pad * 2, size / 2, colors[4], strokeSize);
+        RoundRect.draw(ctx, x, spaceY, size * 3 + pad * 2, size / 2, colors[4], smallStroke);
         RoundRect.draw(ctx, lineX, lineY, lineW, lineH, 0xFFFFFFFF);
         // CPS
-        RoundRect.draw(ctx, x,              cpsY, cpsW, cpsH, colors[5], strokeSize);
-        RoundRect.draw(ctx, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6], strokeSize);
+        RoundRect.draw(ctx, x,              cpsY, cpsW, cpsH, colors[5], smallStroke, smallStroke, (int)(strokeSize / 1.2), smallStroke);
+        RoundRect.draw(ctx, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6], smallStroke, smallStroke, smallStroke, (int)(strokeSize / 1.2));
 
         // Labels
         RoundRect.drawText(ctx, keyUp.getTranslatedKeyMessage().getString(),    x + size + pad,   wKeyY, size, size, 0xFFFFFFFF);

@@ -64,4 +64,16 @@ public class ConfigManager {
         configCache.addProperty(key, value);
         save();
     }
+
+    public static int getInt(String key, int defaultValue) {
+        if (configCache.has(key)) {
+            return configCache.get(key).getAsInt();
+        }
+        return defaultValue;
+    }
+
+    public static void set(String key, int value) {
+        configCache.addProperty(key, value);
+        save();
+    }
 }

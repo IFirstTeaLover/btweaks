@@ -1,12 +1,8 @@
 package dev.bsprout.btweaks.client;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import dev.bsprout.btweaks.client.mixin.MinecraftAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;

@@ -1,4 +1,4 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.accessor;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.FontManager;

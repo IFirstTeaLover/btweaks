@@ -3,6 +3,7 @@ package dev.bsprout.btweaks.client.widgets;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
+import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
@@ -24,6 +25,7 @@ public class HitDetector implements Widget {
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         if (!isEnabled) return;
         text = null;
+        int color = WidgetGeneral.getGlobalWidgetColor();
         var from = mc.player.getEyePosition();
         var to   = from.add(mc.player.getViewVector(1.0f).scale(10));
         AttackRange attackRange = mc.player.entityAttackRange();
@@ -54,7 +56,7 @@ public class HitDetector implements Widget {
         int textWidth = mc.font.width(text);
         float rectWidth = textWidth + padding * 2;
 
-        RoundRect.draw(ctx, x, y, rectWidth, height, 0x80262626, 3);
+        RoundRect.draw(ctx, x, y, rectWidth, height, color, 3);
         RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
     }
 
