@@ -54,13 +54,6 @@ public class ConfigManager {
         return defaultValue;
     }
 
-    public static int getInt(String key, int defaultValue) {
-        if (configCache.has(key)) {
-            return configCache.get(key).getAsInt();
-        }
-        return defaultValue;
-    }
-
 
     public static void set(String key, boolean value) {
         configCache.addProperty(key, value);
@@ -68,11 +61,6 @@ public class ConfigManager {
     }
 
     public static void set(String key, String value) {
-        configCache.addProperty(key, value);
-        save();
-    }
-
-    public static void set(String key, int value) {
         configCache.addProperty(key, value);
         save();
     }

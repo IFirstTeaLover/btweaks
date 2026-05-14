@@ -1,11 +1,8 @@
 package dev.bsprout.btweaks.client.widgets;
 
-import dev.bsprout.btweaks.client.BtweaksClient;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
-import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
-import io.github.humbleui.skija.Canvas;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -13,16 +10,13 @@ import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class RAMUsage implements Widget{
     private boolean isEnabled;
-
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
-        Canvas canvas = BtweaksClient.canvas;
 
         if (!isEnabled) return;
 
         Runtime runtime = Runtime.getRuntime();
-        int color = WidgetGeneral.getGlobalWidgetColor();
 
         long maxMemory = runtime.maxMemory();
         long totalMemory = runtime.totalMemory();
@@ -44,15 +38,15 @@ public class RAMUsage implements Widget{
 
         // Draw 1
         float rectWidthX = mc.font.width(line1) + padding * 2;
-        RoundRect.draw(canvas, x, currentY, rectWidthX, height, color, 3);
-        RoundRect.drawText(canvas, line1, x, currentY, rectWidthX, height, 0xFFFFFFFF, "gsans", "left", 11f);
+        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626, 3);
+        RoundRect.drawText(ctx, line1, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw 2
         float rectWidthY = mc.font.width(line2) + padding * 2;
-        RoundRect.draw(canvas, x, currentY, rectWidthY, height, color, 3);
-        RoundRect.drawText(canvas, line2, x, currentY, rectWidthY, height, 0xFFFFFFFF, "gsans", "left", 11f);
+        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626, 3);
+        RoundRect.drawText(ctx, line2, x, currentY, rectWidthY, height, 0xFFFFFFFF);
     }
 
 

@@ -1,10 +1,9 @@
 package dev.bsprout.btweaks.client.widgets;
 
-import dev.bsprout.btweaks.client.BtweaksClient;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
-import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
+import dev.bsprout.btweaks.client.config.ConfigWindow;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -12,78 +11,85 @@ import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class Coordinates implements Widget {
     private boolean isEnabled;
-
+    private boolean started = false;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
-        if (BtweaksClient.canvas == null || mc.getDebugOverlay().showDebugScreen()) return;
-        if (!isEnabled()) return;
+        if (mc.getDebugOverlay().showDebugScreen()) return;
 
-        int bgColor = WidgetGeneral.getGlobalWidgetColor();
+        if (!isEnabled) return;
 
-        String playerX = "X: " + Math.round(mc.player.getX());
-        String playerY = "Y: " + Math.round(mc.player.getY());
-        String playerZ = "Z: " + Math.round(mc.player.getZ());
+        String playerX = "§cX: §f" + Math.round(mc.player.getX());
+        String playerY = "§aY: §f" + Math.round(mc.player.getY());
+        String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
 
-        float rowHeight = uiScale * 10f;
-        float padding = uiScale * 2f;
-        float spacing = uiScale * 2f;
-        float fontSize = uiScale * 8f;
+        int height = uiScale * 5;
+        int padding = uiScale * 2;
 
         float currentY = y;
 
-        // Draw rows
-        drawCoordRow(playerX, x, currentY, rowHeight, padding, bgColor, uiScale, fontSize, 0xFFFF5555); // Red X
-        currentY += rowHeight + spacing;
+        // Draw X
+        float rectWidthX = mc.font.width(playerX) + padding * 2;
+        RoundRect.draw(ctx, x, currentY, rectWidthX, height, 0x80262626, uiScale);
+        RoundRect.drawText(ctx, playerX, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
-        drawCoordRow(playerY, x, currentY, rowHeight, padding, bgColor, uiScale, fontSize, 0xFF55FF55); // Green Y
-        currentY += rowHeight + spacing;
+        currentY += height + uiScale;
 
-        drawCoordRow(playerZ, x, currentY, rowHeight, padding, bgColor, uiScale, fontSize, 0xFF5555FF); // Blue Z
-    }
+        // Draw Y
+        float rectWidthY = mc.font.width(playerY) + padding * 2;
+        RoundRect.draw(ctx, x, currentY, rectWidthY, height, 0x80262626, uiScale);
+        RoundRect.drawText(ctx, playerY, x, currentY, rectWidthY, height, 0xFFFFFFFF);
 
-    private void drawCoordRow(String text, float x, float y, float h, float pad, int bg, int scale, float fontSize, int labelColor) {
-        float textWidth = mc.font.width(text);
-        float rectW = textWidth + (pad * 2);
+        currentY += height + uiScale;
 
-        RoundRect.draw(BtweaksClient.canvas, x, y, rectW, h, bg, scale);
-
-        RoundRect.drawText(BtweaksClient.canvas, text, x + pad, y, textWidth, h, labelColor, "gsans", "left", fontSize);
+        // Draw Z
+        float rectWidthZ = mc.font.width(playerZ) + padding * 2;
+        RoundRect.draw(ctx, x, currentY, rectWidthZ, height, 0x80262626, uiScale);
+        RoundRect.drawText(ctx, playerZ, x, currentY, rectWidthZ, height, 0xFFFFFFFF);
     }
 
     @Override
     public float getWidth(int uiScale) {
-        if (mc.player == null || !isEnabled()) return 0;
-
-        String x = "X: " + Math.round(mc.player.getX());
-        String y = "Y: " + Math.round(mc.player.getY());
-        String z = "Z: " + Math.round(mc.player.getZ());
-
-        float maxText = Math.max(mc.font.width(x), Math.max(mc.font.width(y), mc.font.width(z)));
-        return maxText + (uiScale * 4); // text + padding
+        if (mc.player == null) return 0;
+        if (!isEnabled) return 0;
+        String playerX = "§cX: §f" + Math.round(mc.player.getX());
+        String playerY = "§aY: §f" + Math.round(mc.player.getY());
+        String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
+        int padding = uiScale * 2;
+        float maxText = Math.max(mc.font.width(playerX), Math.max(mc.font.width(playerY), mc.font.width(playerZ)));
+        return maxText + padding * 2;
     }
 
     @Override
     public float getHeight(int uiScale) {
-        if (!isEnabled()) return 0;
-        float rowHeight = uiScale * 10f;
-        float spacing = uiScale * 2f;
-        return (rowHeight * 3) + (spacing * 2);
+        if (!isEnabled) return 0;
+        return (uiScale * 5) * 3; // 3 rows
     }
 
     @Override
     public boolean isEnabled() {
-        return ConfigManager.getBoolean(this.getName(), true);
+        boolean enabled = ConfigManager.getBoolean(this.getName(), true);
+        isEnabled = enabled;
+        return enabled;
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         ConfigManager.set(this.getName(), enabled);
-        this.isEnabled = enabled;
+        isEnabled = enabled;
     }
 
     @Override
-    public String getName() { return "Coordinates"; }
+    public String getName() {
+        return "Coordinates";
+    }
 
-    @Override public void setX(int x) {}
-    @Override public void setY(int y) {}
+    @Override
+    public void setX(int x) {
+
+    }
+
+    @Override
+    public void setY(int y) {
+
+    }
 }

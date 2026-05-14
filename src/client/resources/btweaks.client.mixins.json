@@ -3,19 +3,12 @@
   "package": "dev.bsprout.btweaks.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ChatMixin",
+    "FontManagerAccessor",
     "LoadingOverlayMixin",
-    "MinecraftEarlyMixin",
-    "ScoreboardMixin",
+    "MinecraftAccessor",
     "ScreenMixin",
     "ScreenshotMixin",
-    "TabOverlayMixin",
-    "TitleScreenMixin",
-    "WindowMixin",
-    "accessor.AccessorDrawingBackgroundGraphicsAccess",
-    "accessor.AccessorDrawingFocusedGraphicsAccess",
-    "accessor.FontManagerAccessor",
-    "accessor.MinecraftAccessor"
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

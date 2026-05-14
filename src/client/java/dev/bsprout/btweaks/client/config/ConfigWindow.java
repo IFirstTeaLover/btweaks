@@ -1,16 +1,11 @@
 package dev.bsprout.btweaks.client.config;
 
 import dev.bsprout.btweaks.client.*;
-import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
-import io.github.humbleui.skija.Canvas;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import io.github.humbleui.types.Rect;
-import net.minecraft.world.scores.Scoreboard;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,30 +25,26 @@ import static dev.bsprout.btweaks.client.config.widgets.RAMUsageConfig.showRAMUs
 
 public class ConfigWindow extends Screen {
     public static RoundButton widgetsButton;
-    private float animationProgress = 0.6f;
+    private float animationProgress = 0f;
     private static final float sidebarSize = 0.25f;
     private final List<RoundButton> menuButtons = new ArrayList<>();
+
     private final List<RoundButton> checkmarks = new ArrayList<>();
 
     private float scrollAmount = 0;
     private float maxScroll = 0;
+
     private float targetScroll = 0;
-    static float configScale = 0;
+    float configScale = 0;
 
     private int lastWidth = -1;
     private int lastHeight = -1;
-
-    public static double globalDelta = 1.0;
-    private float transitionAlpha = 0f;
-    private boolean fadingIn = false;
-    private Runnable postFadeAction = null;
-    private float FADE_SPEED = 0.01f;
-    private GLState glState = new GLState();
 
     Identifier check;
     Identifier close;
 
     private final java.util.Map<RoundButton, CheckmarkData> checkmarkMetadata = new java.util.HashMap<>();
+
     private record CheckmarkData(String title, String desc, WidgetInstance inst) {}
 
     public ConfigWindow() {
@@ -63,6 +54,7 @@ public class ConfigWindow extends Screen {
     @Override
     protected void init() {
         this.menuButtons.clear();
+        this.clearWidgets();
         this.checkmarks.clear();
         this.checkmarkMetadata.clear();
 
@@ -77,11 +69,11 @@ public class ConfigWindow extends Screen {
                     Component.literal(inst.widget.getName()),
                     0, 0, 0, 0,
                     () -> {
-                        this.fadingIn = true;
-                        this.postFadeAction = () -> {
-                            this.menuButtons.clear();
-                            this.showWidgetConfig(inst.widget.getName());
-                        };
+                        this.menuButtons.forEach(this::removeWidget);
+
+                        this.menuButtons.clear();
+
+                        this.showWidgetConfig(inst.widget.getName());
                     },
                     0xFF333333, false
             );
@@ -89,39 +81,16 @@ public class ConfigWindow extends Screen {
             this.addRenderableWidget(btn);
         }
 
-        widgetsButton = new RoundButton(0, 0, 0, 0,
-                Component.literal("Widgets"), 0, 0, 0, 0,
-                () -> {
-                    this.fadingIn = true;
-                    this.postFadeAction = this::init;
-                },
-                0xFF196EE8, false
-        );
+        widgetsButton = new RoundButton(0, 0, 0, 0, Component.literal("Widgets"), 0, 0, 0, 0, this::init, 0xFF196EE8, false);
         this.addRenderableWidget(widgetsButton);
     }
 
     @Override
-    public void render(GuiGraphics ictx, int mouseX, int mouseY, float delta) {
-        Canvas ctx = BtweaksClient.canvas;
-        if (ctx == null) return;
+    public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
+        if (this.width != lastWidth || this.height != lastHeight) {
+            this.lastWidth = this.width;
+            this.lastHeight = this.height;
 
-        glState.push();
-        BtweaksClient.context.resetGLAll();
-
-        BtweaksClient.canvas.resetMatrix();
-
-        GL11.glColorMask(true, true, true, true);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-
-        globalDelta = delta;
-        int currentWidth = mc.getWindow().getWidth();
-        int currentHeight = mc.getWindow().getHeight();
-
-        if (currentWidth != lastWidth || currentHeight != lastHeight) {
-            this.lastWidth = currentWidth;
-            this.lastHeight = currentHeight;
             this.targetScroll = 0;
             this.scrollAmount = 0;
 
@@ -129,72 +98,80 @@ public class ConfigWindow extends Screen {
         }
 
         animationProgress = updateAnimations(delta);
-        configScale = (float) Math.sin((animationProgress * Math.PI) / 2);
-        FADE_SPEED = 0.5f * delta;
 
-        int uiScale = mc.getWindow().getGuiScale();
-        float configWidth = this.width * uiScale * 0.6f;
+        configScale = (float) Math.sin((animationProgress * Math.PI) / 2);
+
+        int uiScale = this.minecraft.getWindow().getGuiScale();
+
+        float configWidth = this.width * 0.6f;
         float configHeight = configWidth * 0.62f;
+
         float currentW = configScaled(configWidth);
         float currentH = configScaled(configHeight);
-        float x = (this.width - currentW) / 2f * uiScale;
-        float y = (this.height - currentH) / 2f * uiScale;
-        float margin = configScaled((uiScale * 2)) * uiScale;
+
+        float x = (this.width - currentW) / 2f;
+        float y = (this.height - currentH) / 2f;
+
+        float margin = configScaled((uiScale * 2));
+
         float sidebarWidth = currentW * sidebarSize;
+
+        float mainAreaX = x + sidebarWidth;
         float mainAreaW = currentW - sidebarWidth;
+
         float mainContentX = x + sidebarWidth;
 
-        ctx.save();
+        RoundRect.draw(ctx, x, y, currentW, currentH, 0xF2202020, (int) configScaled((uiScale * 2.5)));
 
-        ctx.clear(0x00000000);
-
-        RoundRect.draw(ctx, x, y, currentW, currentH, scaleAlpha(0xF2202020), (int) configScaled((uiScale * uiScale * 2.5)));
-        RoundRect.draw(ctx, x, y, sidebarWidth, currentH, scaleAlpha(0xF21A1A1A),
+        RoundRect.draw(ctx, x, y, sidebarWidth, currentH, 0xF21A1A1A,
                 (int) (configScaled(uiScale * 2.5)), 0, (int) (configScaled(uiScale * 2.5)), 0);
 
-//        ctx.clipRect(Rect.makeLTRB(
-//                (x + 3) * uiScale, (y + 3) * uiScale,
-//                (x + currentW - 3) * uiScale, (y + currentH - 3) * uiScale
-//        ));
+        // prevent scrollable buttons from showing outside config window
+        ctx.enableScissor(
+                (int) x + 3,
+                (int) y + 3,
+                (int) (x + currentW - 3),
+                (int) (y + currentH - 3)
+        );
 
-        updateConfigButtonsLayout(x, y, margin, sidebarWidth, mainAreaW, mainContentX, currentH, uiScale * uiScale);
+        updateConfigButtonsLayout(
+                x,
+                y,
+                margin,
+                sidebarWidth,
+                mainAreaW,
+                mainContentX,
+                currentH,
+                uiScale
+        );
 
         for (RoundButton boxBtn : this.checkmarks) {
-            CheckmarkData data = checkmarkMetadata.get(boxBtn);
             int cardWidth = (int) (mainAreaW - (margin * 2));
             int cardHeight = (int) (cardWidth / 10f);
             int cardX = (int) (mainContentX + margin);
+
             int cardY = boxBtn.getY() - (cardHeight / 2) + (boxBtn.getHeight() / 2);
 
+            CheckmarkData data = checkmarkMetadata.get(boxBtn);
+
             drawSettingCard(ctx, cardX, cardY, cardWidth, cardHeight,
-                    data.title, data.desc, data.inst.widget.isEnabled(), uiScale * uiScale);
+                    data.title, data.desc,
+                    data.inst.widget.isEnabled(), uiScale);
         }
 
-        if (transitionAlpha > 0) {
-            int alphaInt = (int) (transitionAlpha * 255);
-            int color = (alphaInt << 24) | (0x00202020);
-            RoundRect.draw(ctx, mainContentX, y, mainAreaW, currentH, scaleAlpha(color), (int) configScaled((uiScale * uiScale * 2.5)));
+        super.render(ctx, mouseX, mouseY, delta);
+
+        for (RoundButton boxBtn : this.checkmarks) {
+            int checkMargin = uiScale;
+
+            CheckmarkData data = checkmarkMetadata.get(boxBtn);
+
+            boolean enabled = data.inst.widget.isEnabled();
+
+            drawImage(ctx, enabled ? check : close , boxBtn.getX() + checkMargin, boxBtn.getY() + checkMargin, boxBtn.getWidth() - checkMargin * 2, boxBtn.getHeight() - checkMargin * 2);
         }
 
-        ctx.restore();
-
-        glState.pop();
-        BtweaksClient.context.flush();
-        BtweaksClient.context.submit(true);
-
-        super.render(ictx, mouseX, mouseY, delta);
-        ictx.nextStratum();
-
-        if (fadingIn) {
-            transitionAlpha = Math.min(1.0f, transitionAlpha + FADE_SPEED);
-            if (transitionAlpha >= 1.0f && postFadeAction != null) {
-                fadingIn = false;
-                postFadeAction.run();
-                postFadeAction = null;
-            }
-        } else if (transitionAlpha > 0) {
-            transitionAlpha = Math.max(0, transitionAlpha - FADE_SPEED);
-        }
+        ctx.disableScissor();
     }
 
     @Override
@@ -269,8 +246,9 @@ public class ConfigWindow extends Screen {
                 break;
         }
     }
+
     private float updateAnimations(float delta){
-        float animationSpeed = 1.0f;
+        float animationSpeed = 4.0f;
         if (Math.abs(scrollAmount - targetScroll) > 0.1f) {
             scrollAmount += (targetScroll - scrollAmount) * 0.2f;
         } else {
@@ -289,13 +267,6 @@ public class ConfigWindow extends Screen {
 
     private float configScaled(double var){
         return (float) (var * configScale);
-    }
-
-    private static int scaleAlpha(int color) {
-        float t = (configScale - 0.6f) / 0.4f;
-        float clamped = Math.max(0f, Math.min(1f, t));
-        int a = (int) ((color >> 24 & 0xFF) * clamped);
-        return (a << 24) | (color & 0x00FFFFFF);
     }
 
     private void updateConfigButtonsLayout(
@@ -380,7 +351,7 @@ public class ConfigWindow extends Screen {
         final RoundButton[] checkBoxArr = new RoundButton[1];
         inst.widget.setEnabled(isEnabled);
         checkBoxArr[0] = new RoundButton(0, 0, 0, 0,
-                Component.literal(" "),
+                Component.literal(""),
                 0, 0, 0, 0,
                 () -> {
                     boolean newState = !inst.widget.isEnabled();
@@ -401,16 +372,16 @@ public class ConfigWindow extends Screen {
         this.addRenderableWidget(checkBoxArr[0]);
     }
 
-    public static void drawSettingCard(Canvas graphics, int x, int y, int width, int height, String title, String desc, boolean enabled, int uiScale) {
+    public static void drawSettingCard(GuiGraphics graphics, int x, int y, int width, int height, String title, String desc, boolean enabled, int uiScale) {
         int padding = uiScale * 3;
         int gap = uiScale * 2;
 
-        RoundRect.draw(graphics, x, y, width, height, scaleAlpha(0x901A1A1A), (int) (uiScale * 1.2));
+        RoundRect.draw(graphics, x, y, width, height, 0x901A1A1A, (int) (uiScale * 1.2));
 
-        drawText(graphics, title, x + padding, y + padding, 0, 0, scaleAlpha(0xFFFFFFFF), "gsans", "left", 11f);
+        drawText(graphics, title, x + padding, y + padding, 0, 0, 0xFFFFFFFF, "gsans", "left");
 
         int descY = y + height - padding;
-        drawText(graphics, desc, x + padding, descY, 0, 0, scaleAlpha(0xFFAAAAAA), "gsans", "left", 11f);
+        drawText(graphics, desc, x + padding, descY, 0, 0, 0xFFAAAAAA, "gsans", "left");
     }
 
     private void updateLayoutVariables() {
@@ -471,7 +442,6 @@ public class ConfigWindow extends Screen {
 
     public static void initializeWidgetsFromConfig() {
         if (BtweaksClient.renderer != null) {
-            WidgetGeneral.setGlobalWidgetColor(0xA6292929);
             LOGGER.info("[btweaks] World load detected. Syncing widget states with config.");
 
             for (WidgetInstance inst : BtweaksClient.renderer.getWidgets()) {

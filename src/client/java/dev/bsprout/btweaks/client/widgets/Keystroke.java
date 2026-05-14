@@ -1,18 +1,12 @@
 package dev.bsprout.btweaks.client.widgets;
 
-import dev.bsprout.btweaks.client.BtweaksClient;
 import dev.bsprout.btweaks.client.KeyLogger;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
-import dev.bsprout.btweaks.client.helpers.Tinter;
-import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
-import io.github.humbleui.skija.Canvas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.components.ChatComponent;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -36,7 +30,6 @@ public class Keystroke implements Widget {
 
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
-        Canvas canvas = BtweaksClient.canvas;
         if (!isEnabled) return;
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
@@ -67,14 +60,10 @@ public class Keystroke implements Widget {
         float deltaTimeCapped = tick.getGameTimeDeltaTicks();
         if (deltaTimeCapped > 1) deltaTimeCapped = 1; // cap at 1 so that lerp doesn't overshoot to yellow
 
-        int color = WidgetGeneral.getGlobalWidgetColor();
-
         int[] colors = new int[7];
-        int[] textColors = new int[7];
         for (int i = 0; i < 7; i++) {
             blend[i] += ((pressed[i] ? 1f : 0f) - blend[i]) * LERPSPEED * deltaTimeCapped;
-            colors[i]    = lerpColor(color, Tinter.tint(color, 150, 1), blend[i]);
-            textColors[i] = lerpColor(0xFFFFFFFF, 0xFF000000, blend[i]);
+            colors[i] = lerpColor(0x80262626, 0x80D9D9D9, blend[i]);
         }
 
         var keyUp    = mc.options.keyUp;
@@ -97,37 +86,31 @@ public class Keystroke implements Widget {
         float lineX = x + spaceMargin;
         float lineW = (x + size * 3 + pad * 2 - spaceMargin) - lineX;
 
-        int strokeSize = (int) (uiScale * 2);
-        int smallStroke = strokeSize / 2;
+        int strokeSize = (int) (uiScale * 1.6);
 
         // W
-        RoundRect.draw(canvas, x + size + pad, wKeyY, size, size, colors[0], strokeSize, strokeSize, smallStroke, smallStroke);
+        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0], strokeSize);
         // A S D
-        RoundRect.draw(canvas, x,              wasdY, size, size, colors[2], strokeSize, smallStroke, smallStroke, smallStroke);
-        RoundRect.draw(canvas, x + size + pad, wasdY, size, size, colors[1], smallStroke, smallStroke, smallStroke, smallStroke);
-        RoundRect.draw(canvas, x + size*2+pad*2, wasdY, size, size, colors[3], smallStroke, strokeSize, smallStroke, smallStroke);
+        RoundRect.draw(ctx, x,              wasdY, size, size, colors[2], strokeSize);
+        RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1], strokeSize);
+        RoundRect.draw(ctx, x + size*2+pad*2, wasdY, size, size, colors[3], strokeSize);
         // Space
-        RoundRect.draw(canvas, x, spaceY, size * 3 + pad * 2, size / 2, colors[4], smallStroke);
-        RoundRect.draw(canvas, lineX, lineY, lineW, lineH, textColors[4], 100);
+        RoundRect.draw(ctx, x, spaceY, size * 3 + pad * 2, size / 2, colors[4], strokeSize);
+        RoundRect.draw(ctx, lineX, lineY, lineW, lineH, 0xFFFFFFFF);
         // CPS
-        RoundRect.draw(canvas, x,              cpsY, cpsW, cpsH, colors[5], smallStroke, smallStroke, (int)(strokeSize / 1.2), smallStroke);
-        RoundRect.draw(canvas, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6], smallStroke, smallStroke, smallStroke, (int)(strokeSize / 1.2));
+        RoundRect.draw(ctx, x,              cpsY, cpsW, cpsH, colors[5], strokeSize);
+        RoundRect.draw(ctx, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6], strokeSize);
 
-        //labels
-        String wLabel = sanitize(keyUp.getTranslatedKeyMessage().getString());
-        String aLabel = sanitize(keyLeft.getTranslatedKeyMessage().getString());
-        String sLabel = sanitize(keyDown.getTranslatedKeyMessage().getString());
-        String dLabel = sanitize(keyRight.getTranslatedKeyMessage().getString());
+        // Labels
+        RoundRect.drawText(ctx, keyUp.getTranslatedKeyMessage().getString(),    x + size + pad,   wKeyY, size, size, 0xFFFFFFFF);
+        RoundRect.drawText(ctx, keyLeft.getTranslatedKeyMessage().getString(),  x,                wasdY, size, size, 0xFFFFFFFF);
+        RoundRect.drawText(ctx, keyDown.getTranslatedKeyMessage().getString(),  x + size + pad,   wasdY, size, size, 0xFFFFFFFF);
+        RoundRect.drawText(ctx, keyRight.getTranslatedKeyMessage().getString(), x + size*2+pad*2, wasdY, size, size, 0xFFFFFFFF);
 
-        RoundRect.drawText(canvas, wLabel, x + size + pad,   wKeyY, size, size, textColors[0], "gsans", "left", 11f);
-        RoundRect.drawText(canvas, aLabel, x,                wasdY, size, size, textColors[2], "gsans", "left", 11f);
-        RoundRect.drawText(canvas, sLabel, x + size + pad,   wasdY, size, size, textColors[1], "gsans", "left", 11f);
-        RoundRect.drawText(canvas, dLabel, x + size*2+pad*2, wasdY, size, size, textColors[3], "gsans", "left", 11f);
-
-        RoundRect.drawText(canvas, "LMB",            x,              cpsY,              cpsW, cpsH * 0.5f, textColors[5], "gsans", "left", 11f);
-        RoundRect.drawText(canvas, sanitize(String.valueOf(lmbCps)) + " cps",  x,              cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, textColors[5], "gsans", "left", 11f);
-        RoundRect.drawText(canvas, "RMB",            x + cpsW + pad, cpsY,              cpsW, cpsH * 0.5f, textColors[6], "gsans", "left", 11f);
-        RoundRect.drawText(canvas, sanitize(String.valueOf(rmbCps)) + " cps",  x + cpsW + pad, cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, textColors[6], "gsans", "left", 11f);
+        RoundRect.drawText(ctx, "LMB",            x,              cpsY,              cpsW, cpsH * 0.5f, 0xFFFFFFFF);
+        RoundRect.drawText(ctx, lmbCps + " cps",  x,              cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, 0xFFFFFFFF);
+        RoundRect.drawText(ctx, "RMB",            x + cpsW + pad, cpsY,              cpsW, cpsH * 0.5f, 0xFFFFFFFF);
+        RoundRect.drawText(ctx, rmbCps + " cps",  x + cpsW + pad, cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, 0xFFFFFFFF);
     }
 
     @Override
@@ -177,32 +160,5 @@ public class Keystroke implements Widget {
     @Override
     public void setY(int y) {
 
-    }
-
-    public static int invertColor(int color) {
-        int a = (color >> 24) & 0xFF;
-        int rgb = color & 0x00FFFFFF;
-        return (a << 24) | (rgb ^ 0xFFFFFF);
-    }
-
-    private String sanitize(String input) {
-        if (input == null) return "";
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if (Character.isHighSurrogate(c)) {
-                if (i + 1 < input.length() && Character.isLowSurrogate(input.charAt(i + 1))) {
-                    sb.append(c);
-                    sb.append(input.charAt(++i));
-                } else {
-                    sb.append('\uFFFD');
-                }
-            } else if (Character.isLowSurrogate(c)) {
-                sb.append('\uFFFD');
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 }
