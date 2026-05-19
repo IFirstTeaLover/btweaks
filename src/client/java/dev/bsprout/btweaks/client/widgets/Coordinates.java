@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client.widgets;
 
+import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
@@ -14,7 +15,7 @@ public class Coordinates implements Widget {
     private boolean isEnabled;
     private boolean started = false;
     @Override
-    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         if (!isEnabled) return;
@@ -32,21 +33,21 @@ public class Coordinates implements Widget {
 
         // Draw X
         float rectWidthX = mc.font.width(playerX) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthX, height, color, uiScale);
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthX, height, color, uiScale);
         RoundRect.drawText(ctx, playerX, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw Y
         float rectWidthY = mc.font.width(playerY) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthY, height, color, uiScale);
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthY, height, color, uiScale);
         RoundRect.drawText(ctx, playerY, x, currentY, rectWidthY, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw Z
         float rectWidthZ = mc.font.width(playerZ) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthZ, height, color, uiScale);
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthZ, height, color, uiScale);
         RoundRect.drawText(ctx, playerZ, x, currentY, rectWidthZ, height, 0xFFFFFFFF);
     }
 

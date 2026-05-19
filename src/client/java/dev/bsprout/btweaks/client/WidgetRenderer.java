@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client;
 
+import dev.bsprout.brapi.client.BRender;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -28,6 +29,7 @@ public class WidgetRenderer implements HudRenderCallback {
         int uiScale = mc.getWindow().getGuiScale();
 
         for (WidgetInstance.Anchor anchor : WidgetInstance.Anchor.values()) {
+            BRender bRender = new BRender();
             List<WidgetInstance> group = widgets.stream()
                     .filter(w -> w.anchor == anchor)
                     .toList();
@@ -67,7 +69,7 @@ public class WidgetRenderer implements HudRenderCallback {
                 float wy = autoOriginY + pos[1];
                 // bottom anchors: pass bottom edge so widget builds upward
                 boolean bottomAnchor = anchor == WidgetInstance.Anchor.BOTTOM_LEFT || anchor == WidgetInstance.Anchor.BOTTOM_RIGHT;
-                inst.widget.render(ctx, uiScale, wx, bottomAnchor ? wy + inst.widget.getHeight(uiScale) : wy, tick);
+                inst.widget.render(ctx, uiScale, wx, bottomAnchor ? wy + inst.widget.getHeight(uiScale) : wy, tick, bRender);
             }
 
             // manual widgets
@@ -86,8 +88,9 @@ public class WidgetRenderer implements HudRenderCallback {
                     case CENTER                    -> sh / 2f - h / 2f + inst.row;
                 };
                 boolean bottomAnchor = anchor == WidgetInstance.Anchor.BOTTOM_LEFT || anchor == WidgetInstance.Anchor.BOTTOM_RIGHT;
-                inst.widget.render(ctx, uiScale, wx, bottomAnchor ? wy + h : wy, tick);
+                inst.widget.render(ctx, uiScale, wx, bottomAnchor ? wy + h : wy, tick, bRender);
             }
+            bRender.flush(ctx);
         }
     }
 

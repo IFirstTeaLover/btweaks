@@ -3,8 +3,10 @@ package dev.bsprout.btweaks.client;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.DeltaTracker;
 
+import dev.bsprout.brapi.client.BRender;
+
 public interface Widget {
-    void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick);
+    void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender);
     float getWidth(int uiScale);
     float getHeight(int uiScale);
 

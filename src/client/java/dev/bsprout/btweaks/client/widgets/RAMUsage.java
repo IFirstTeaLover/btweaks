@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client.widgets;
 
+import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
@@ -12,7 +13,7 @@ import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 public class RAMUsage implements Widget{
     private boolean isEnabled;
     @Override
-    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         if (!isEnabled) return;
@@ -39,14 +40,14 @@ public class RAMUsage implements Widget{
 
         // Draw 1
         float rectWidthX = mc.font.width(line1) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthX, height, color, 3);
+        bRender.roundRect((int)x, (int) currentY, (int) rectWidthX, height, color, 3);
         RoundRect.drawText(ctx, line1, x, currentY, rectWidthX, height, 0xFFFFFFFF);
 
         currentY += height + uiScale;
 
         // Draw 2
         float rectWidthY = mc.font.width(line2) + padding * 2;
-        RoundRect.draw(ctx, x, currentY, rectWidthY, height, color, 3);
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthY, height, color, 3);
         RoundRect.drawText(ctx, line2, x, currentY, rectWidthY, height, 0xFFFFFFFF);
     }
 

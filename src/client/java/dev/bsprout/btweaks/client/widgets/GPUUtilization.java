@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client.widgets;
 
+import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
@@ -16,7 +17,7 @@ public class GPUUtilization implements Widget {
     private boolean isEnabled;
 
     @Override
-    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         if (!isEnabled) return;
@@ -37,7 +38,7 @@ public class GPUUtilization implements Widget {
         int padding = uiScale * 2;
         int textWidth = mc.font.width(text);
         float rectWidth = textWidth + padding * 2;
-        RoundRect.draw(ctx, x, y, rectWidth, height, color, uiScale);
+        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale);
         RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
     }
 

@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client.widgets;
 
+import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.KeyLogger;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
@@ -31,7 +32,7 @@ public class Keystroke implements Widget {
     }
 
     @Override
-    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick) {
+    public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender) {
         if (!isEnabled) return;
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
@@ -94,17 +95,17 @@ public class Keystroke implements Widget {
         int smallStroke = strokeSize / 2;
 
         // W
-        RoundRect.draw(ctx, x + size + pad, wKeyY, size, size, colors[0], strokeSize, strokeSize, smallStroke, smallStroke);
+        bRender.roundRect((int) (x + size + pad), (int) wKeyY, (int) size, (int) size, colors[0], strokeSize, strokeSize, smallStroke, smallStroke);
         // A S D
-        RoundRect.draw(ctx, x,              wasdY, size, size, colors[2], strokeSize, smallStroke, smallStroke, smallStroke);
-        RoundRect.draw(ctx, x + size + pad, wasdY, size, size, colors[1], smallStroke, smallStroke, smallStroke, smallStroke);
-        RoundRect.draw(ctx, x + size*2+pad*2, wasdY, size, size, colors[3], smallStroke,strokeSize, smallStroke, smallStroke);
+        bRender.roundRect((int) x, (int) wasdY, (int) size, (int) size, colors[2], strokeSize, smallStroke, smallStroke, smallStroke);
+        bRender.roundRect((int) (x + size + pad), (int) wasdY, (int) size, (int) size, colors[1], smallStroke, smallStroke, smallStroke, smallStroke);
+        bRender.roundRect((int) (x + size*2+pad*2), (int) wasdY, (int) size, (int) size, colors[3], smallStroke,strokeSize, smallStroke, smallStroke);
         // Space
-        RoundRect.draw(ctx, x, spaceY, size * 3 + pad * 2, size / 2, colors[4], smallStroke);
-        RoundRect.draw(ctx, lineX, lineY, lineW, lineH, 0xFFFFFFFF);
+        bRender.roundRect((int) x, (int) spaceY, (int)(size * 3 + pad * 2), (int)(size / 2), colors[4], smallStroke);
+        bRender.roundRect((int)lineX, (int) lineY, (int) lineW, (int) lineH, 0xFFFFFFFF, (int) lineH/2);
         // CPS
-        RoundRect.draw(ctx, x,              cpsY, cpsW, cpsH, colors[5], smallStroke, smallStroke, (int)(strokeSize / 1.2), smallStroke);
-        RoundRect.draw(ctx, x + cpsW + pad, cpsY, cpsW, cpsH, colors[6], smallStroke, smallStroke, smallStroke, (int)(strokeSize / 1.2));
+        bRender.roundRect((int) x,                (int) cpsY, (int) cpsW, (int) cpsH, colors[5], smallStroke, smallStroke, (int)(strokeSize / 1.2), smallStroke);
+        bRender.roundRect((int) (x + cpsW + pad), (int) cpsY, (int) cpsW, (int) cpsH, colors[6], smallStroke, smallStroke, smallStroke, (int)(strokeSize / 1.2));
 
         // Labels
         RoundRect.drawText(ctx, keyUp.getTranslatedKeyMessage().getString(),    x + size + pad,   wKeyY, size, size, 0xFFFFFFFF);

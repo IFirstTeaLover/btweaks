@@ -1,5 +1,7 @@
 package dev.bsprout.btweaks.client.mixin;
 
+import dev.bsprout.brapi.client.BRender;
+import dev.bsprout.brapi.client.Brapi;
 import dev.bsprout.btweaks.client.RoundRect;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -19,6 +21,7 @@ import java.util.function.IntSupplier;
 public class LoadingOverlayMixin {
     @Shadow
     private float currentProgress;
+    private static final BRender bRender = new BRender();
 
     @Redirect(
             method = "render",
@@ -37,13 +40,8 @@ public class LoadingOverlayMixin {
         int alpha = Math.round(f * 255.0F);
         int color = ARGB.color(alpha, 255, 255, 255);
 
-        RoundRect.draw(guiGraphics, i, j, k - i, l - j, color, 4);
-
         float maxInnerWidth = (k - i) - 4;
         float progressWidth = maxInnerWidth * this.currentProgress;
-
-        int trackColor = 0xFF0A0A0A;
-        RoundRect.draw(guiGraphics, i + 1, j + 1, (k - i) - 2, (l - j) - 2, trackColor, 3);
 
         if (progressWidth > 0) {
             if (isJune()) {
@@ -55,16 +53,27 @@ public class LoadingOverlayMixin {
                     int rgb = java.awt.Color.HSBtoRGB(hue % 1.0f, 0.7f, 1.0f);
                     color = (alpha << 24) | (rgb & 0xFFFFFF);
 
-                    RoundRect.draw(guiGraphics, i + 2 + x, j + 2, 5, l - j - 4, color, 2);
+                    if (Brapi.ROUNDED_RECT_PIPELINE == null) {
+                        RoundRect.draw(guiGraphics, i + 2 + x, j + 2, 5, l - j - 4, color, 2);
+                    }else{
+                        bRender.roundRect(i + 2 + x, j + 2, 5, l - j - 4, color, 2);
+                    }
                 }
             } else {
                 // non-gay bar
-                RoundRect.draw(guiGraphics, i + 2, j + 2, progressWidth, (l - j) - 4, color, 2);
+                if (!Brapi.isReady()) {
+                    RoundRect.draw(guiGraphics, i + 2, j + 2, (int) progressWidth, (l - j) - 4, color, 2);
+                }else{
+                    bRender.roundRect(i + 2, j + 2, (int) progressWidth, (l - j) - 4, color, 2);
+                }
             }
+            bRender.flush(guiGraphics);
+            BRender.flushPending();
         }
     }
 
     private boolean isJune() {
+        //return true;
         return LocalDate.now().getMonth() == Month.JUNE;
     }
 
