@@ -56,7 +56,7 @@ public class LoadingOverlayMixin {
                     if (Brapi.ROUNDED_RECT_PIPELINE == null) {
                         RoundRect.draw(guiGraphics, i + 2 + x, j + 2, 5, l - j - 4, color, 2);
                     }else{
-                        bRender.roundRect(i + 2 + x, j + 2, 5, l - j - 4, color, 2);
+                        bRender.roundRect(i + 2 + x, j + 2, 5, l - j - 4, color, 2, 1);
                     }
                 }
             } else {
@@ -64,11 +64,11 @@ public class LoadingOverlayMixin {
                 if (!Brapi.isReady()) {
                     RoundRect.draw(guiGraphics, i + 2, j + 2, (int) progressWidth, (l - j) - 4, color, 2);
                 }else{
-                    bRender.roundRect(i + 2, j + 2, (int) progressWidth, (l - j) - 4, color, 2);
+                    bRender.roundRect(i + 2, j + 2, (int) progressWidth, (l - j) - 4, color, 2, 1);
                 }
             }
             bRender.flush(guiGraphics);
-            BRender.flushPending();
+            BRender.flushAll();
         }
     }
 
