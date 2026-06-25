@@ -12,7 +12,7 @@ import java.util.List;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class WidgetRenderer implements HudRenderCallback {
-
+    BRender bRender = new BRender();
     private final List<WidgetInstance> widgets = new ArrayList<>();
 
     public void add(Widget widget, int col, int row, WidgetInstance.Anchor anchor) {
@@ -29,7 +29,6 @@ public class WidgetRenderer implements HudRenderCallback {
         int uiScale = mc.getWindow().getGuiScale();
 
         for (WidgetInstance.Anchor anchor : WidgetInstance.Anchor.values()) {
-            BRender bRender = new BRender();
             List<WidgetInstance> group = widgets.stream()
                     .filter(w -> w.anchor == anchor)
                     .toList();

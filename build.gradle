@@ -34,7 +34,8 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    modImplementation "dev.bsprout:brapi:0.2.1"
+    modImplementation "dev.bsprout:brapi:${project.brapi_version}"
+    include "dev.bsprout:brapi:${project.brapi_version}"
 }
 
 processResources {
@@ -84,4 +85,10 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+tasks.configureEach { task ->
+    if (task.name == 'configureLoom') {
+        task.dependsOn gradle.includedBuild('brapi').task(':build')
+    }
 }

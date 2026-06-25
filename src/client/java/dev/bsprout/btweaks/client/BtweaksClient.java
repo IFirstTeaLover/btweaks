@@ -9,6 +9,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -23,6 +24,13 @@ public class BtweaksClient implements ClientModInitializer {
             "key.btweaks.open_config",
             InputConstants.Type.KEYSYM,
             InputConstants.KEY_RSHIFT,
+            new KeyMapping.Category(Identifier.fromNamespaceAndPath("btweaks", "main"))
+    );
+
+    public static final KeyMapping stressTestKey = new KeyMapping(
+            "key.btweaks.stress_test",
+            InputConstants.Type.KEYSYM,
+            InputConstants.KEY_F8,
             new KeyMapping.Category(Identifier.fromNamespaceAndPath("btweaks", "main"))
     );
 
@@ -42,7 +50,6 @@ public class BtweaksClient implements ClientModInitializer {
             Calculator.register(dispatcher);
         });
 
-
         long duration = System.currentTimeMillis() - startTime;
 
         LOGGER.info("[btweaks] Initialized stage 1 successfully in {}ms!", duration);
@@ -58,12 +65,16 @@ public class BtweaksClient implements ClientModInitializer {
         renderer.add(new GPUUtilization(), -1, -1, WidgetInstance.Anchor.TOP_LEFT);
         renderer.add(new Coordinates(), -1, -1, WidgetInstance.Anchor.TOP_LEFT);
         renderer.add(new RAMUsage(), -1, -1, WidgetInstance.Anchor.TOP_RIGHT);
-        renderer.add(new HitDetector(), 0, 30, WidgetInstance.Anchor.CENTER);
+        renderer.add(new Resources(), -1, -1, WidgetInstance.Anchor.TOP_LEFT);
 
         HudRenderCallback.EVENT.register(renderer);
 
         duration = System.currentTimeMillis() - startTime;
 
         LOGGER.info("[btweaks] Initialized successfully in {}ms!", duration);
+    }
+
+    public static Logger getLogger(){
+        return LOGGER;
     }
 }

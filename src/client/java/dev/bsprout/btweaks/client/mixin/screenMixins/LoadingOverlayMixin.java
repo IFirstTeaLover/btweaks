@@ -1,12 +1,10 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.screenMixins;
 
 import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.brapi.client.Brapi;
 import dev.bsprout.btweaks.client.RoundRect;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
-import net.minecraft.client.gui.screens.Overlay;
-import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.util.ARGB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;

@@ -1,14 +1,12 @@
-package dev.bsprout.btweaks.client;
+package dev.bsprout.btweaks.client.buttons;
 
+import dev.bsprout.btweaks.client.RoundRect;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-
-import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class RoundButton extends AbstractButton {
     private int radius1;

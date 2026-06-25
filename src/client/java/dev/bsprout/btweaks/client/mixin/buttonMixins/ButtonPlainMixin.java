@@ -1,38 +1,32 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.buttonMixins;
 
 import dev.bsprout.brapi.client.BFont;
 import dev.bsprout.brapi.client.BRender;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.InputWithModifiers;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static dev.bsprout.btweaks.client.AssetManager.getJersey;
+
 @Mixin(Button.Plain.class)
 @Environment(EnvType.CLIENT)
 public abstract class ButtonPlainMixin {
     @Unique
-    private static final BFont Jersey = new BFont(Identifier.fromNamespaceAndPath("btweaks", "font/jersey20.ttf"));
+    private float btweaks$hoverProgress = 0f;
 
     @Unique
-    private float btweaks$hoverProgress = 0f;
+    private static final BRender r = new BRender();
 
     @Inject(method = "renderContents", at = @At("HEAD"), cancellable = true)
     private void btweaks$renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         AbstractWidget self = (AbstractWidget)(Object) this;
-        BRender r = new BRender();
 
         boolean hovered = self.isHovered();
         boolean active  = self.active;
@@ -59,7 +53,7 @@ public abstract class ButtonPlainMixin {
         String text = ((Button)(Object) this).getMessage().getString();
         float fontSize = 10f;
 
-        float[][] quads = Jersey.getQuads(text, 0, 0, fontSize);
+        float[][] quads = getJersey().getQuads(text, 0, 0, fontSize);
         float minY = Float.MAX_VALUE, maxY = Float.MIN_VALUE;
 
         for (float[] q : quads) {
@@ -68,10 +62,10 @@ public abstract class ButtonPlainMixin {
         }
 
         float textHeight = maxY - minY;
-        float tx = self.getX() + (self.getWidth()  - Jersey.textSize(text, fontSize)) / 2f;
+        float tx = self.getX() + (self.getWidth()  - getJersey().textSize(text, fontSize)) / 2f;
         float ty = self.getY() + (self.getHeight() - textHeight) / 2f - minY;
 
-        r.drawText(Jersey, ((Button)(Object) this).getMessage().getVisualOrderText(), tx, ty, fontSize, textColor, 1);
+        r.drawText(getJersey(), ((Button)(Object) this).getMessage().getVisualOrderText(), tx, ty, fontSize, textColor, 1);
         r.flush(graphics);
         ci.cancel();
     }

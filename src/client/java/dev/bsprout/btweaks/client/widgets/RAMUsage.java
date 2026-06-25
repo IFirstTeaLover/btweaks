@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client.widgets;
 
+import dev.bsprout.brapi.client.BFont;
 import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
@@ -8,6 +9,7 @@ import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
+import static dev.bsprout.btweaks.client.AssetManager.getJersey;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class RAMUsage implements Widget{
@@ -36,19 +38,22 @@ public class RAMUsage implements Widget{
         int height = uiScale * 5;
         int padding = uiScale * 2;
 
+        BFont Jersey = getJersey();
+
         float currentY = y;
+        int fontSize = 10;
 
         // Draw 1
         float rectWidthX = mc.font.width(line1) + padding * 2;
-        bRender.roundRect((int)x, (int) currentY, (int) rectWidthX, height, color, 3);
-        RoundRect.drawText(ctx, line1, x, currentY, rectWidthX, height, 0xFFFFFFFF);
+        bRender.roundRect((int)x, (int) currentY, (int) rectWidthX, height, color, 3, 1);
+        bRender.drawText(Jersey, line1, x + padding, currentY + fontSize, fontSize, 0xFFFFFFFF, 4);
 
         currentY += height + uiScale;
 
         // Draw 2
         float rectWidthY = mc.font.width(line2) + padding * 2;
-        bRender.roundRect((int) x, (int) currentY, (int) rectWidthY, height, color, 3);
-        RoundRect.drawText(ctx, line2, x, currentY, rectWidthY, height, 0xFFFFFFFF);
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthY, height, color, 3, 1);
+        bRender.drawText(Jersey, line2, x + padding, currentY + fontSize, fontSize, 0xFFFFFFFF, 4);
     }
 
 
@@ -58,10 +63,10 @@ public class RAMUsage implements Widget{
         Runtime runtime = Runtime.getRuntime();
         long usedMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
         long maxMB  = runtime.maxMemory() / 1048576L;
-        String line1 = "Memory used: " + usedMB + "MB";
-        String line2 = "Memory allocated: " + usedMB + "/" + maxMB + "MB";
+        String line1 = "Memory: " + usedMB;
+        String line2 = "Allocated: " + usedMB + "/" + maxMB;
         int padding = uiScale * 2;
-        return Math.max(mc.font.width(line1), mc.font.width(line2)) + padding * 2;
+        return Math.max(getJersey().textSize(line1, 10), getJersey().textSize(line2, 10)) + padding * 2;
     }
 
     @Override

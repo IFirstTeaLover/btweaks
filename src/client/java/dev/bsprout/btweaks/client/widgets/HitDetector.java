@@ -57,7 +57,7 @@ public class HitDetector implements Widget {
         int textWidth = mc.font.width(text);
         float rectWidth = textWidth + padding * 2;
 
-        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, 3);
+        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, 3, 1);
         RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
     }
 

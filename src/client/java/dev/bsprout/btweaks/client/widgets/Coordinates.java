@@ -10,10 +10,10 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import static dev.bsprout.btweaks.client.widgets.FPS.Jersey;
 
 public class Coordinates implements Widget {
     private boolean isEnabled;
-    private boolean started = false;
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender) {
         if (mc.getDebugOverlay().showDebugScreen()) return;
@@ -22,51 +22,58 @@ public class Coordinates implements Widget {
 
         int color = WidgetGeneral.getGlobalWidgetColor();
 
-        String playerX = "§cX: §f" + Math.round(mc.player.getX());
-        String playerY = "§aY: §f" + Math.round(mc.player.getY());
-        String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
+        String playerX = "X: " + Math.round(mc.player.getX());
+        String playerY = "Y: " + Math.round(mc.player.getY());
+        String playerZ = "Z: " + Math.round(mc.player.getZ());
 
-        int height = uiScale * 5;
-        int padding = uiScale * 2;
+        int height = 15;
+        int padding = 6;
+
+        float fontSize = (float) (height/1.5);
 
         float currentY = y;
 
         // Draw X
-        float rectWidthX = mc.font.width(playerX) + padding * 2;
-        bRender.roundRect((int) x, (int) currentY, (int) rectWidthX, height, color, uiScale);
-        RoundRect.drawText(ctx, playerX, x, currentY, rectWidthX, height, 0xFFFFFFFF);
+        float rectWidthX = Jersey.textSize(playerX, fontSize) + padding * 2;
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthX, height, color, uiScale, 1);
+        bRender.drawText(Jersey, playerX, x + padding, currentY + fontSize,  fontSize, 0xFFFF5555, 4);
 
-        currentY += height + uiScale;
+        currentY += height + 3;
 
         // Draw Y
-        float rectWidthY = mc.font.width(playerY) + padding * 2;
-        bRender.roundRect((int) x, (int) currentY, (int) rectWidthY, height, color, uiScale);
-        RoundRect.drawText(ctx, playerY, x, currentY, rectWidthY, height, 0xFFFFFFFF);
+        float rectWidthY = Jersey.textSize(playerY, fontSize) + padding * 2;
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthY, height, color, uiScale, 1);
+        bRender.drawText(Jersey, playerY, x + padding, currentY + fontSize,  fontSize, 0xFF55FF55, 4);
 
-        currentY += height + uiScale;
+        currentY += height + 3;
 
         // Draw Z
-        float rectWidthZ = mc.font.width(playerZ) + padding * 2;
-        bRender.roundRect((int) x, (int) currentY, (int) rectWidthZ, height, color, uiScale);
-        RoundRect.drawText(ctx, playerZ, x, currentY, rectWidthZ, height, 0xFFFFFFFF);
+        float rectWidthZ = Jersey.textSize(playerZ, fontSize) + padding * 2;
+        bRender.roundRect((int) x, (int) currentY, (int) rectWidthZ, height, color, uiScale, 1);
+        bRender.drawText(Jersey, playerZ, x + padding, currentY + fontSize,  fontSize, 0xFF55FFFF, 4);
     }
 
     @Override
     public float getWidth(int uiScale) {
         if (mc.player == null) return 0;
         if (!isEnabled) return 0;
-        String playerX = "§cX: §f" + Math.round(mc.player.getX());
-        String playerY = "§aY: §f" + Math.round(mc.player.getY());
-        String playerZ = "§bZ: §f" + Math.round(mc.player.getZ());
-        int padding = uiScale * 2;
-        float maxText = Math.max(mc.font.width(playerX), Math.max(mc.font.width(playerY), mc.font.width(playerZ)));
+        String playerX = "X: " + Math.round(mc.player.getX());
+        String playerY = "Y: " + Math.round(mc.player.getY());
+        String playerZ = "Z: " + Math.round(mc.player.getZ());
+        int padding = 6;
+        int height = 15;
+        float fontSize = (float) (height/1.5);
+        float maxText = Math.max(
+                Jersey.textSize(playerX, fontSize),
+                Math.max(Jersey.textSize(playerY, fontSize), Jersey.textSize(playerZ, fontSize))
+        );
         return maxText + padding * 2;
     }
 
     @Override
     public float getHeight(int uiScale) {
         if (!isEnabled) return 0;
-        return (uiScale * 5) * 3; // 3 rows
+        return 15 * 3 + 3 * 2; // 3 rows + 2 3px gaps
     }
 
     @Override

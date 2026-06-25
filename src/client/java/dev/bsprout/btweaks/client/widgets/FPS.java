@@ -1,5 +1,6 @@
 package dev.bsprout.btweaks.client.widgets;
 
+import dev.bsprout.brapi.client.BFont;
 import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
@@ -9,38 +10,47 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.Identifier;
 
+import static dev.bsprout.btweaks.client.AssetManager.getJersey;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class FPS implements Widget {
     private boolean isEnabled;
+    public static BFont Jersey;
+
     @Override
     public void render(GuiGraphics ctx, int uiScale, float x, float y, DeltaTracker tick, BRender bRender) {
-        if (mc.getDebugOverlay().showDebugScreen()) return;
+        Jersey = getJersey();
 
+        if (mc.getDebugOverlay().showDebugScreen()) return;
         if (!isEnabled) return;
 
         String text = "FPS: " + mc.getFps();
 
         int color = WidgetGeneral.getGlobalWidgetColor();
 
-        int height = uiScale * 5;
-        int padding = uiScale * 2;
-        int textWidth = mc.font.width(text);
+        int height = 15;
+        int padding = 6;
+        float fontSize = 10;
+        float textWidth = Jersey.textSize(text, fontSize);
         float rectWidth = textWidth + padding * 2;
-        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale);
-        RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
+        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale, 1);
+        bRender.drawText(Jersey, text, x + padding, y + fontSize,  fontSize, 0xFFFFFFFF, 4);
     }
 
     @Override
     public float getWidth(int uiScale) {
+        if (Jersey == null){
+            Jersey = new BFont(Identifier.fromNamespaceAndPath("btweaks", "font/jersey20.ttf"));
+        }
+
         if (!isEnabled) return 0;
-        return mc.font.width("FPS: " + mc.getFps()) + uiScale * 4;
+        return Jersey.textSize("FPS " + mc.getFps(), 10) + uiScale * 4;
     }
 
     @Override
     public float getHeight(int uiScale) {
         if (!isEnabled) return 0;
-        return uiScale * 5;
+        return 15;
     }
 
     @Override

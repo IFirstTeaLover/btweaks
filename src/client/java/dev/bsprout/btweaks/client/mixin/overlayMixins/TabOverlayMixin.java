@@ -1,10 +1,9 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.overlayMixins;
 
 import com.mojang.authlib.GameProfile;
-import dev.bsprout.btweaks.client.BtweaksClient;
 import dev.bsprout.btweaks.client.RoundRect;
+import dev.bsprout.btweaks.client.config.ConfigWindow;
 import dev.bsprout.btweaks.client.record.TabEntry;
-import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
@@ -29,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Mixin(PlayerTabOverlay.class)
 public abstract class TabOverlayMixin {
@@ -39,6 +37,9 @@ public abstract class TabOverlayMixin {
     @Shadow protected abstract Component getNameForDisplay(PlayerInfo playerInfo);
     @Shadow private List<PlayerInfo> getPlayerInfos() { return null; }
     @Shadow protected abstract void renderPingIcon(GuiGraphics guiGraphics, int i, int j, int k, PlayerInfo playerInfo);
+
+    private float animTabX = -1, animTabY = -1, animTabW = 0, animTabH = 0;
+    private boolean animTabInit = false;
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void render(GuiGraphics guiGraphics, int i, Scoreboard scoreboard, Objective objective, CallbackInfo ci) {
@@ -121,7 +122,27 @@ public abstract class TabOverlayMixin {
         int uiScale = minecraft.getWindow().getGuiScale();
         int rounding = (int) Math.round(uiScale * 1.5);
 
-        RoundRect.draw(guiGraphics, rx, totalTop, rw, totalBottom - totalTop, color, rounding, rounding, rounding, rounding);
+        float targetX = rx;
+        float targetY = totalTop;
+        float targetW = rw;
+        float targetH = totalBottom - totalTop;
+
+        if (!animTabInit) {
+            animTabX = i / 2f;
+            animTabY = 10;
+            animTabW = 0;
+            animTabH = 0;
+            animTabInit = true;
+        }
+
+        float speed = Math.min(1.0f, (float)(0.18 * ConfigWindow.globalDelta * 2));
+        animTabX += (targetX - animTabX) * speed;
+        animTabY += (targetY - animTabY) * speed;
+        animTabW += (targetW - animTabW) * speed;
+        animTabH += (targetH - animTabH) * speed;
+
+
+        RoundRect.draw(guiGraphics, animTabX, animTabY, animTabW, animTabH, color, rounding, rounding, rounding, rounding);
         for (int x = 0; x < o; x++) {
             int v = x / p;
             int y = x % p;

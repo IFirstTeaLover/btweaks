@@ -1,4 +1,4 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.screenMixins;
 
 import dev.bsprout.brapi.client.BTexture;
 import dev.bsprout.brapi.client.NineSlice;

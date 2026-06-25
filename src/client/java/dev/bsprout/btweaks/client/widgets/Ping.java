@@ -4,11 +4,13 @@ import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.Widget;
 import dev.bsprout.btweaks.client.config.ConfigManager;
+import dev.bsprout.btweaks.client.helpers.PingTracker;
 import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import static dev.bsprout.btweaks.client.widgets.FPS.Jersey;
 
 public class Ping implements Widget {
     int frameSkip = 0;
@@ -25,38 +27,31 @@ public class Ping implements Widget {
 
         frameSkip++;
 
-        if (frameSkip >= targetSkip) {
-            targetSkip = mc.getFps();
-            frameSkip = 0;
-            if (mc.getConnection() != null && mc.player != null) {
-                var entry = mc.getConnection().getPlayerInfo(mc.player.getUUID());
-                if (entry != null) {
-                    cachedPing = entry.getLatency();
-                }
-            }
-        }
+        cachedPing = PingTracker.getLivePing();
 
         String text = "Ping: " + cachedPing;
 
-        int height = uiScale * 5;
-        int padding = uiScale * 2;
-        int textWidth = mc.font.width(text);
+        int height = 15;
+        int padding = 6;
+        int fontSize = 10;
+        float textWidth = Jersey.textSize(text, fontSize);
+
         float rectWidth = textWidth + padding * 2;
-        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale);
-        RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
+        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale, 1);
+        bRender.drawText(Jersey, text, x + padding, y + fontSize, fontSize, 0xFFFFFFFF, 4);
     }
 
     @Override
     public float getWidth(int uiScale) {
         if (!isEnabled) return 0;
-        int padding = uiScale * 2;
-        return mc.font.width("Ping: " + cachedPing) + (padding * 2);
+        int padding = 6;
+        return Jersey.textSize("Ping: " + cachedPing, 10) + (padding * 2);
     }
 
     @Override
     public float getHeight(int uiScale) {
         if (!isEnabled) return 0;
-        return uiScale * 5;
+        return 15;
     }
 
     @Override

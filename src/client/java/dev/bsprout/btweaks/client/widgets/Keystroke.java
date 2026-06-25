@@ -13,6 +13,8 @@ import net.minecraft.client.DeltaTracker;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import static dev.bsprout.btweaks.client.widgets.FPS.Jersey;
+
 public class Keystroke implements Widget {
     private boolean isEnabled;
     private float[] blend = {0, 0, 0, 0, 0, 0, 0};
@@ -95,29 +97,48 @@ public class Keystroke implements Widget {
         int smallStroke = strokeSize / 2;
 
         // W
-        bRender.roundRect((int) (x + size + pad), (int) wKeyY, (int) size, (int) size, colors[0], strokeSize, strokeSize, smallStroke, smallStroke);
+        bRender.roundRect((int) (x + size + pad), (int) wKeyY, (int) size, (int) size, colors[0], strokeSize, strokeSize, smallStroke, smallStroke, 1);
         // A S D
-        bRender.roundRect((int) x, (int) wasdY, (int) size, (int) size, colors[2], strokeSize, smallStroke, smallStroke, smallStroke);
-        bRender.roundRect((int) (x + size + pad), (int) wasdY, (int) size, (int) size, colors[1], smallStroke, smallStroke, smallStroke, smallStroke);
-        bRender.roundRect((int) (x + size*2+pad*2), (int) wasdY, (int) size, (int) size, colors[3], smallStroke,strokeSize, smallStroke, smallStroke);
+        bRender.roundRect((int) x, (int) wasdY, (int) size, (int) size, colors[2], strokeSize, smallStroke, smallStroke, smallStroke, 1);
+        bRender.roundRect((int) (x + size + pad), (int) wasdY, (int) size, (int) size, colors[1], smallStroke, smallStroke, smallStroke, smallStroke, 1);
+        bRender.roundRect((int) (x + size*2+pad*2), (int) wasdY, (int) size, (int) size, colors[3], smallStroke,strokeSize, smallStroke, smallStroke, 1);
         // Space
-        bRender.roundRect((int) x, (int) spaceY, (int)(size * 3 + pad * 2), (int)(size / 2), colors[4], smallStroke);
-        bRender.roundRect((int)lineX, (int) lineY, (int) lineW, (int) lineH, 0xFFFFFFFF, (int) lineH/2);
+        bRender.roundRect((int) x, (int) spaceY, (int)(size * 3 + pad * 2), (int)(size / 2), colors[4], smallStroke, 1);
+        bRender.roundRect((int)lineX, (int) lineY, (int) lineW, (int) lineH, textColors[4], (int) lineH/2, 1);
         // CPS
-        bRender.roundRect((int) x,                (int) cpsY, (int) cpsW, (int) cpsH, colors[5], smallStroke, smallStroke, (int)(strokeSize / 1.2), smallStroke);
-        bRender.roundRect((int) (x + cpsW + pad), (int) cpsY, (int) cpsW, (int) cpsH, colors[6], smallStroke, smallStroke, smallStroke, (int)(strokeSize / 1.2));
+        bRender.roundRect((int) x,                (int) cpsY, (int) cpsW, (int) cpsH, colors[5], smallStroke, smallStroke, smallStroke, strokeSize, 1);
+        bRender.roundRect((int) (x + cpsW + pad), (int) cpsY, (int) cpsW, (int) cpsH, colors[6], smallStroke, smallStroke, strokeSize, smallStroke, 1);
 
         // Labels
-        RoundRect.drawText(ctx, keyUp.getTranslatedKeyMessage().getString(),    x + size + pad,   wKeyY, size, size, 0xFFFFFFFF);
-        RoundRect.drawText(ctx, keyLeft.getTranslatedKeyMessage().getString(),  x,                wasdY, size, size, 0xFFFFFFFF);
-        RoundRect.drawText(ctx, keyDown.getTranslatedKeyMessage().getString(),  x + size + pad,   wasdY, size, size, 0xFFFFFFFF);
-        RoundRect.drawText(ctx, keyRight.getTranslatedKeyMessage().getString(), x + size*2+pad*2, wasdY, size, size, 0xFFFFFFFF);
+        float fontSize = (float) (size / 1.75);
 
-        RoundRect.drawText(ctx, "LMB",            x,              cpsY,              cpsW, cpsH * 0.5f, 0xFFFFFFFF);
-        RoundRect.drawText(ctx, lmbCps + " cps",  x,              cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, 0xFFFFFFFF);
-        RoundRect.drawText(ctx, "RMB",            x + cpsW + pad, cpsY,              cpsW, cpsH * 0.5f, 0xFFFFFFFF);
-        RoundRect.drawText(ctx, rmbCps + " cps",  x + cpsW + pad, cpsY + cpsH * 0.5f, cpsW, cpsH * 0.5f, 0xFFFFFFFF);
-    }
+        // W Text
+        String wText = keyUp.getTranslatedKeyMessage().getString();
+        bRender.drawText(Jersey, wText, x + size + pad + (size - Jersey.textSize(wText, fontSize)) / 2 - 1, wKeyY + fontSize, fontSize, textColors[0], 4);
+
+        // A Text
+        String aText = keyLeft.getTranslatedKeyMessage().getString();
+        bRender.drawText(Jersey, aText, x + (size - Jersey.textSize(aText, fontSize)) / 2 - 1, wasdY + fontSize, fontSize, textColors[2], 4);
+
+        // S Text
+        String sText = keyDown.getTranslatedKeyMessage().getString();
+        bRender.drawText(Jersey, sText, x + size + pad + (size - Jersey.textSize(sText, fontSize)) / 2 - 1, wasdY + fontSize, fontSize, textColors[1], 4);
+
+        // D Text
+        String dText = keyRight.getTranslatedKeyMessage().getString();
+        bRender.drawText(Jersey, dText, x + size * 2 + pad * 2 + (size - Jersey.textSize(dText, fontSize)) / 2 - 1, wasdY + fontSize, fontSize, textColors[3], 4);
+
+        // Mouse buttons & CPS labels
+        float mouseFontSize = fontSize * 0.9f;
+        String lmbText = "LMB";
+        String lmbCpsText = lmbCps + " CPS";
+        bRender.drawText(Jersey, lmbText, x + (cpsW - Jersey.textSize(lmbText, mouseFontSize)) / 2 - 1, cpsY + mouseFontSize, mouseFontSize, textColors[5], 4);
+        bRender.drawText(Jersey, lmbCpsText, x + (cpsW - Jersey.textSize(lmbCpsText, mouseFontSize * 0.7f)) / 2 - 1, cpsY + cpsH * 0.5f + mouseFontSize * 0.7f - 2, mouseFontSize * 0.8f, textColors[5], 4);
+
+        String rmbText = "RMB";
+        String rmbCpsText = rmbCps + " CPS";
+        bRender.drawText(Jersey, rmbText, x + cpsW + pad + (cpsW - Jersey.textSize(rmbText, mouseFontSize)) / 2 - 1, cpsY + mouseFontSize, mouseFontSize, textColors[6], 4);
+        bRender.drawText(Jersey, rmbCpsText, x + cpsW + pad + (cpsW - Jersey.textSize(rmbCpsText, mouseFontSize * 0.7f)) / 2 - 1, cpsY + cpsH * 0.5f + mouseFontSize * 0.7f - 2, mouseFontSize * 0.8f, textColors[6], 4);}
 
     @Override
     public float getWidth(int uiScale) {

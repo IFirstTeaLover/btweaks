@@ -1,4 +1,4 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.buttonMixins;
 
 import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.btweaks.client.mixin.accessor.ImageButtonAccessor;
@@ -8,7 +8,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,6 +24,9 @@ public abstract class ImageButtonMixin {
     @Unique
     private float btweaks$hoverProgress = 0f;
 
+    @Unique
+    private static final BRender r = new BRender();
+
     @Inject(method = "renderContents", at = @At("HEAD"), cancellable = true)
     private void btweaks$renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         AbstractWidget self = (AbstractWidget)(Object) this;
@@ -36,8 +38,6 @@ public abstract class ImageButtonMixin {
         btweaks$hoverProgress += (hovered ? 0.2f : -0.1f);
         btweaks$hoverProgress = Math.clamp(btweaks$hoverProgress, 0f, 1f);
         float t = btweaks$hoverProgress;
-
-        BRender r = new BRender();
 
         int bgColor     = active ? lerpColor(0xFF1a1a1a, 0xFF2e2e2e, t) : 0xFF121212;
         int borderColor = active ? lerpColor(0xFF222222, 0xFF2e2e2e, t) : 0xFF181818;

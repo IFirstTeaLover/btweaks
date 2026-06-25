@@ -1,6 +1,5 @@
-package dev.bsprout.btweaks.client.mixin;
+package dev.bsprout.btweaks.client.mixin.overlayMixins;
 
-import dev.bsprout.btweaks.client.BtweaksClient;
 import dev.bsprout.btweaks.client.RoundRect;
 import dev.bsprout.btweaks.client.config.ConfigWindow;
 import dev.bsprout.btweaks.client.record.DisplayEntry;
@@ -23,8 +22,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Comparator;
-
-import static dev.bsprout.btweaks.client.config.ConfigWindow.globalDelta;
 
 @Mixin(Gui.class)
 public abstract class ScoreboardMixin {
@@ -70,11 +67,13 @@ public abstract class ScoreboardMixin {
 
         for (DisplayEntry e : lvs)
             maxWidth = Math.max(maxWidth, this.getFont().width(e.name()) + (e.scoreWidth() > 0 ? colonWidth + e.scoreWidth() : 0));
+        int pad = 3;
+        int rightGap = 6;
 
         int m = lvs.length;
         int o = guiGraphics.guiHeight() / 2 + (m * 9) / 3;
-        int q = guiGraphics.guiWidth() - maxWidth - 3;
-        int r = guiGraphics.guiWidth() - 3 + 2;
+        int q = guiGraphics.guiWidth() - maxWidth - 3 - rightGap;
+        int r = guiGraphics.guiWidth() - 3 + 2 - rightGap;
         int u = o - m * 9;
 
         float targetX      = q - 2;
@@ -89,21 +88,19 @@ public abstract class ScoreboardMixin {
         animHeight += (targetHeight - animHeight) * speed;
 
         int fixedWidth = r - (int) animX + 2;
-
         float xOffset = animX - targetX;
-
         int color = WidgetGeneral.getGlobalWidgetColor();
 
-        RoundRect.draw(guiGraphics, animX - uiScale, animY,          fixedWidth, 9,           color, rounding, rounding, 0, 0);
-        RoundRect.draw(guiGraphics, animX - uiScale, animY + 9,      fixedWidth, animHeight,  color, 0, 0, rounding, rounding);
+        RoundRect.draw(guiGraphics, animX - pad, animY - pad,  fixedWidth + pad * 2, 9 + pad * 2,            color, rounding, rounding, 0, 0);
+        RoundRect.draw(guiGraphics, animX - pad, animY + 9 + pad,    fixedWidth + pad * 2, animHeight + pad,        color, 0, 0, rounding, rounding);
 
-        guiGraphics.drawString(this.getFont(), title, (int)(q + maxWidth / 2 - titleWidth / 2 + xOffset), u - 9, -1, false);
+        guiGraphics.drawString(this.getFont(), title, (int)(q + maxWidth / 2 - titleWidth / 2 + xOffset), (int)(animY), -1, false);
 
         for (int v = 0; v < m; v++) {
             DisplayEntry e = lvs[v];
             int w = o - (m - v) * 9;
-            guiGraphics.drawString(this.getFont(), e.name(), (int)(q + xOffset - uiScale), w, -1, false);
-            guiGraphics.drawString(this.getFont(), e.score(), (int)(r - e.scoreWidth() + xOffset - uiScale), w, -1, false);
+            guiGraphics.drawString(this.getFont(), e.name(),  (int)(q + xOffset), w, -1, false);
+            guiGraphics.drawString(this.getFont(), e.score(), (int)(r - e.scoreWidth() + xOffset), w, -1, false);
         }
     }
 }

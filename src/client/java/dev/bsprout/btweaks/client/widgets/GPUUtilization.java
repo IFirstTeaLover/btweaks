@@ -8,6 +8,7 @@ import dev.bsprout.btweaks.client.helpers.WidgetGeneral;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 
+import static dev.bsprout.btweaks.client.AssetManager.getJersey;
 import static dev.bsprout.btweaks.client.BtweaksClient.mc;
 
 public class GPUUtilization implements Widget {
@@ -34,25 +35,26 @@ public class GPUUtilization implements Widget {
 
         String text = "GPU: " + cachedUsage;
 
-        int height = uiScale * 5;
-        int padding = uiScale * 2;
-        int textWidth = mc.font.width(text);
+        int height = 15;
+        int padding = 6;
+        int fontSize = 10;
+        float textWidth = getJersey().textSize(text, fontSize);
         float rectWidth = textWidth + padding * 2;
-        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale);
-        RoundRect.drawText(ctx, text, x, y, rectWidth, height, 0xFFFFFFFF);
+        bRender.roundRect((int) x, (int) y, (int) rectWidth, height, color, uiScale, 1);
+        bRender.drawText(getJersey(), text, x + padding, y + fontSize, fontSize, 0xFFFFFFFF, 4);
     }
 
     @Override
     public float getWidth(int uiScale) {
         if (!isEnabled) return 0;
-        int padding = uiScale * 2;
-        return mc.font.width("GPU: " + cachedUsage) + (padding * 2);
+        int padding = 6;
+        return getJersey().textSize("GPU: " + cachedUsage, 10) + (padding * 2);
     }
 
     @Override
     public float getHeight(int uiScale) {
         if (!isEnabled) return 0;
-        return uiScale * 5;
+        return 15;
     }
 
     @Override

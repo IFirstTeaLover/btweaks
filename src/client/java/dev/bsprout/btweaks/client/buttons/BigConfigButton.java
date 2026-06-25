@@ -2,19 +2,20 @@ package dev.bsprout.btweaks.client.buttons;
 
 import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.brapi.client.BTexture;
+import dev.bsprout.brapi.client.NineSlice;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
-public class ConfigButton extends AbstractButton {
+public class BigConfigButton extends AbstractButton {
     private Runnable onClick;
     BRender bRender = new BRender();
-    private final BTexture texture;
+    private final NineSlice texture;
 
-    public ConfigButton(int x, int y, int width, int height, Runnable onClick, BTexture texture) {
-        super(x, y, width, height, Component.empty());
+    public BigConfigButton(int x, int y, int width, int height, Component text, Runnable onClick, NineSlice texture) {
+        super(x, y, width, height, text);
         this.onClick = onClick;
         this.texture = texture;
     }
@@ -31,7 +32,7 @@ public class ConfigButton extends AbstractButton {
         boolean isSelected = this.isHoveredOrFocused();
         int tintColor = isSelected ? 0xFFF5F5F5 : 0xFFFFFFFF;
 
-        bRender.drawTexture(
+        bRender.drawTexture9Slice(
                 this.texture,
                 this.getX(),
                 this.getY(),

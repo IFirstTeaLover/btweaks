@@ -3,15 +3,22 @@
   "package": "dev.bsprout.btweaks.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "LoadingOverlayMixin",
-    "MinecraftEarlyMixin",
-    "ScoreboardMixin",
-    "ScreenMixin",
     "ScreenshotMixin",
-    "TabOverlayMixin",
-    "TitleScreenMixin",
     "accessor.FontManagerAccessor",
-    "accessor.MinecraftAccessor"
+    "accessor.ImageButtonAccessor",
+    "accessor.MinecraftAccessor",
+    "accessor.PlayerTabOverlayAccessor",
+    "accessor.TooltipTextAccessor",
+    "buttonMixins.ButtonPlainMixin",
+    "buttonMixins.CycleButtonMixin",
+    "buttonMixins.ImageButtonMixin",
+    "buttonMixins.SliderButtonMixin",
+    "overlayMixins.ScoreboardMixin",
+    "overlayMixins.TabOverlayMixin",
+    "screenMixins.LoadingOverlayMixin",
+    "screenMixins.MinecraftEarlyMixin",
+    "screenMixins.OptionsMixin",
+    "screenMixins.ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

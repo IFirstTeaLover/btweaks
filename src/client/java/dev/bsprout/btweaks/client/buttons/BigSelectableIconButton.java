@@ -1,8 +1,7 @@
-package dev.bsprout.btweaks.client;
+package dev.bsprout.btweaks.client.buttons;
 
 import dev.bsprout.brapi.client.BRender;
 import dev.bsprout.brapi.client.NineSlice;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.WidgetSprites;

@@ -2,12 +2,12 @@ package dev.bsprout.btweaks.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
+import dev.bsprout.btweaks.client.buttons.ButtonStressTestScreen;
 import dev.bsprout.btweaks.client.config.ConfigWindow;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.lwjgl.glfw.GLFW;
 
-import static dev.bsprout.btweaks.client.BtweaksClient.openConfigKey;
-import static dev.bsprout.btweaks.client.BtweaksClient.mc;
+import static dev.bsprout.btweaks.client.BtweaksClient.*;
 
 public class KeyLogger {
     public static boolean isForwardPressed = false;
@@ -39,7 +39,8 @@ public class KeyLogger {
 
             isAttackPressed   = GLFW.glfwGetMouseButton(window.handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
             isUsePressed      = GLFW.glfwGetMouseButton(window.handle(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
-
+            if (stressTestKey.consumeClick())
+                mc.setScreen(new ButtonStressTestScreen());
             while (openConfigKey.consumeClick()) {
                 if (mc.screen instanceof ConfigWindow) {
                     mc.screen.onClose();
@@ -47,6 +48,7 @@ public class KeyLogger {
                     mc.setScreen(new ConfigWindow());
                 }
             }
+
         });
     }
 
