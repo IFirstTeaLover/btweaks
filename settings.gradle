@@ -7,9 +7,5 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-includeBuild("D:/brapi") {
-    dependencySubstitution {
-        substitute module('dev.bsprout:brapi') using project(':')
-    }
-}
+
 rootProject.name = 'btweaks'
